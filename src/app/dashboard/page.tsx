@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Calendar, Clock, Video, CheckCircle2 } from "lucide-react";
+import { Calendar, Clock, Video, CheckCircle2, Loader2 } from "lucide-react";
 
 import { Navbar } from "@/components/layout/Navbar";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -15,8 +15,9 @@ import { useAuthStore, useHydratedAuth } from "@/store/auth";
 import { apiFetch } from "@/lib/api";
 import { Booking } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Suspense } from "react";
 
-export default function FanDashboard() {
+function FanDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isAuthenticated, isHydrated } = useHydratedAuth();
@@ -60,8 +61,8 @@ export default function FanDashboard() {
   // Handle both snake_case (mock) and camelCase (real)
   const upcoming = bookings.filter((b: any) => {
     const status = (b.status || "").toUpperCase();
-    const startsAt = new Date(b.startsAt || b.starts_at);
-    const duration = b.durationSec || b.duration_sec || 0;
+    const startsAt = new Date(b.starts_at);
+    const duration = b.duration_sec || 0;
     const endsAt = new Date(startsAt.getTime() + duration * 1000);
     
     // Only show as upcoming if it hasn't finished yet and isn't cancelled
@@ -69,8 +70,8 @@ export default function FanDashboard() {
   });
   const past = bookings.filter((b: any) => {
     const status = (b.status || "").toUpperCase();
-    const startsAt = new Date(b.startsAt || b.starts_at);
-    const duration = b.durationSec || b.duration_sec || 0;
+    const startsAt = new Date(b.starts_at);
+    const duration = b.duration_sec || 0;
     const endsAt = new Date(startsAt.getTime() + duration * 1000);
 
     return endsAt <= new Date() || status === "CANCELLED" || status === "COMPLETED";
@@ -183,5 +184,13 @@ export default function FanDashboard() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function FanDashboard() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-violet-500" /></div>}>
+      <FanDashboardContent />
+    </Suspense>
   );
 }
