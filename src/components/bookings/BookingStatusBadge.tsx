@@ -3,7 +3,7 @@
 import { BookingStatus } from "@/types";
 
 interface Props {
-  status: BookingStatus;
+  status: string;
   size?: "sm" | "md";
 }
 
