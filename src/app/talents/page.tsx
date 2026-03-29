@@ -21,10 +21,10 @@ async function getTalents(): Promise<TalentProfile[]> {
 export default async function TalentsPage() {
   const talents = await getTalents();
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen animated-bg pb-20">
       <Navbar />
       
-      <div className="pt-24 md:pt-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <main className="pt-24 md:pt-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-8 md:mb-12">
           <div>
             <h1 className="text-4xl font-bold gradient-text">Descubrí talentos</h1>
@@ -62,7 +62,7 @@ export default async function TalentsPage() {
             <TalentCard key={talent.id} talent={talent} />
           ))}
         </div>
-      </div>
+      </main>
     </div>
   );
 }
