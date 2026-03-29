@@ -2,7 +2,7 @@
 // Register page — role selection (fan / talent) + form validation
 // On success: stores token in Zustand, redirects by role
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -28,7 +28,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuthStore();
@@ -179,5 +179,13 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-violet-500" /></div>}>
+      <RegisterContent />
+    </Suspense>
   );
 }
