@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Mic, MicOff, Video as VideoIcon, VideoOff, 
   PhoneOff, Users, Settings, Send, MessageSquare, 
@@ -156,9 +157,11 @@ export default function VideoCallRoom() {
         setParticipantCount(2);
         setIsEstablishingConnection(true);
 
+        // CLEANUP: If there was a previous peer, destroy it to avoid leaks and errors on refresh
         if (peerRef.current) {
           console.log("Cleaning up stale peer before new connection");
           peerRef.current.destroy();
+          peerRef.current = null;
         }
 
         const peer = new Peer({
@@ -178,7 +181,7 @@ export default function VideoCallRoom() {
         });
 
         socket.on("call-accepted", (signal: any) => {
-          if (!peer.destroyed) peer.signal(signal);
+          if (peer && !peer.destroyed) peer.signal(signal);
         });
 
         peerRef.current = peer;
@@ -190,7 +193,10 @@ export default function VideoCallRoom() {
         setParticipantCount(2);
         setIsEstablishingConnection(true);
 
-        if (peerRef.current) peerRef.current.destroy();
+        if (peerRef.current) {
+          peerRef.current.destroy();
+          peerRef.current = null;
+        }
 
         const peer = new Peer({
           initiator: false,
@@ -211,6 +217,17 @@ export default function VideoCallRoom() {
         peer.signal(signal);
         peerRef.current = peer;
       });
+
+      socket.on("user-left", () => {
+        console.log("Other user left/refreshed");
+        setParticipantCount(1);
+        setRemoteStream(null);
+        if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+        if (peerRef.current) {
+          peerRef.current.destroy();
+          peerRef.current = null;
+        }
+      });
     };
 
     initPeer();
@@ -222,6 +239,7 @@ export default function VideoCallRoom() {
     return () => {
       socket.disconnect();
       if (peerRef.current) peerRef.current.destroy();
+      if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
     };
   }, [id, user, mediaStream]);
 
@@ -423,8 +441,14 @@ export default function VideoCallRoom() {
               )}
             </div>
 
-            {/* PiP (Local user view) */}
-            <div className="absolute bottom-32 right-6 sm:bottom-28 sm:right-8 w-32 h-44 sm:w-44 sm:h-64 bg-gray-900 rounded-xl overflow-hidden shadow-2xl border-2 border-white/10 transition-all hover:scale-105 z-10 group">
+            {/* PiP (Local user view) - Draggable */}
+            <motion.div 
+              drag
+              dragConstraints={{ left: -300, right: 300, top: -500, bottom: 300 }}
+              dragElastic={0.1}
+              whileDrag={{ scale: 1.05, cursor: "grabbing" }}
+              className="absolute bottom-32 right-6 sm:bottom-28 sm:right-8 w-32 h-44 sm:w-44 sm:h-64 bg-gray-900 rounded-xl overflow-hidden shadow-2xl border-2 border-white/10 z-10 group touch-none"
+            >
               {camOff || !mediaStream ? (
                 <div className="w-full h-full flex flex-col items-center justify-center bg-gray-950">
                   <div className="bg-white/10 p-3 rounded-full mb-2">
@@ -435,7 +459,7 @@ export default function VideoCallRoom() {
                   </p>
                 </div>
               ) : (
-                <div className="w-full h-full bg-black relative">
+                <div className="w-full h-full bg-black relative pointer-events-none">
                   <video 
                     ref={videoRef}
                     autoPlay 
@@ -448,7 +472,7 @@ export default function VideoCallRoom() {
                   </div>
                 </div>
               )}
-            </div>
+            </motion.div>
           </div>
 
           {/* Controls - Fixed height at bottom */}
