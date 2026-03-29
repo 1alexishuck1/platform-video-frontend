@@ -51,7 +51,7 @@ export function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 md:h-16 grid grid-cols-2 md:grid-cols-3 items-center">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 md:h-16 flex items-center justify-between md:grid md:grid-cols-3">
         {/* Left: Logo */}
         <div className="flex justify-start">
           <Link href="/" className="flex items-center gap-2 group">
@@ -170,14 +170,14 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile menu */}
+        {/* Mobile menu - Show only on small screens */}
         <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden hover:bg-white/10 p-2 rounded-xl transition-colors">
-              <Menu className="w-6 h-6" />
-              <span className="sr-only">Abrir menú</span>
-            </Button>
-          </SheetTrigger>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden hover:bg-white/10 p-2 rounded-xl transition-colors">
+                <Menu className="w-6 h-6" />
+                <span className="sr-only">Abrir menú</span>
+              </Button>
+            </SheetTrigger>
           <SheetContent side="right" className="w-[85%] max-w-sm glass border-l border-white/10 p-0 flex flex-col shadow-2xl overflow-hidden" showCloseButton={false}>
             {/* Header */}
             <div className="p-6 border-b border-white/5 flex items-center justify-between bg-black/40">
