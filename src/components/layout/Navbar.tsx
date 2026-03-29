@@ -60,16 +60,16 @@ export function Navbar() {
           <span className="font-bold text-lg gradient-text">PlatfomLive</span>
         </Link>
 
-        {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-6">
+        {/* Desktop nav - Centered */}
+        <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-8">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-violet-300",
+                "text-sm font-medium transition-all hover:text-violet-300",
                 pathname === link.href
-                  ? "text-violet-300"
+                  ? "text-violet-300 scale-105"
                   : "text-muted-foreground"
               )}
             >
