@@ -61,8 +61,8 @@ function FanDashboardContent() {
   // Handle both snake_case (mock) and camelCase (real)
   const upcoming = bookings.filter((b: any) => {
     const status = (b.status || "").toUpperCase();
-    const startsAt = new Date(b.starts_at);
-    const duration = b.duration_sec || 0;
+    const startsAt = new Date(b.startsAt || b.starts_at);
+    const duration = b.durationSec || b.duration_sec || 0;
     const endsAt = new Date(startsAt.getTime() + duration * 1000);
     
     // Only show as upcoming if it hasn't finished yet and isn't cancelled
@@ -70,8 +70,8 @@ function FanDashboardContent() {
   });
   const past = bookings.filter((b: any) => {
     const status = (b.status || "").toUpperCase();
-    const startsAt = new Date(b.starts_at);
-    const duration = b.duration_sec || 0;
+    const startsAt = new Date(b.startsAt || b.starts_at);
+    const duration = b.durationSec || b.duration_sec || 0;
     const endsAt = new Date(startsAt.getTime() + duration * 1000);
 
     return endsAt <= new Date() || status === "CANCELLED" || status === "COMPLETED";
@@ -132,11 +132,11 @@ function FanDashboardContent() {
                         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1.5 bg-black/30 px-3 py-1 rounded-full text-white font-medium">
                             <Calendar className="w-3.5 h-3.5 text-violet-400" />
-                            {format(new Date(booking.starts_at), "dd 'de' MMM, HH:mm", { locale: es })} hs
+                            {format(new Date(booking.startsAt || booking.starts_at), "dd 'de' MMM, HH:mm", { locale: es })} hs
                           </span>
                           <span className="flex items-center gap-1.5 shrink-0">
                             <Clock className="w-3.5 h-3.5 text-violet-400" />
-                            {Math.floor((booking.duration_sec || 0) / 60)} min
+                            {Math.floor((booking.durationSec || booking.duration_sec || 0) / 60)} min
                           </span>
                         </div>
                       </div>
@@ -172,7 +172,7 @@ function FanDashboardContent() {
                   <div className="flex-1 text-center sm:text-left">
                     <h3 className="font-medium">{booking.talent?.stageName || booking.talent?.stage_name}</h3>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {format(new Date(booking.starts_at), "dd MMM, yyyy", { locale: es })}
+                      {format(new Date(booking.startsAt || booking.starts_at), "dd MMM, yyyy", { locale: es })}
                     </p>
                   </div>
                   <BookingStatusBadge status={booking.status} size="sm" />
