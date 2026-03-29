@@ -1,0 +1,136 @@
+// Mock data for frontend development — replace with real API calls when backend is ready
+
+import { TalentProfile, Booking, User } from "@/types";
+
+export const MOCK_TALENTS: TalentProfile[] = [
+  {
+    id: "1",
+    user_id: "u1",
+    stage_name: "Valentina Cruz",
+    bio: "Actriz reconocida en series de Netflix Latinoamérica. Comparto 2 minutos de mi día contigo: consejos, charla, o lo que quieras hablar.",
+    avatar_url: "https://api.dicebear.com/9.x/notionists/svg?seed=valentina&backgroundColor=b6e3f4",
+    price_usd: 25,
+    session_duration_sec: 120,
+    timezone: "America/Buenos_Aires",
+    is_active: true,
+    category: "Actriz",
+    rating: 4.9,
+    total_sessions: 342,
+  },
+  {
+    id: "2",
+    user_id: "u2",
+    stage_name: "Mateo Ríos",
+    bio: "Campeón nacional de fútbol. Te cuento mis secretos del entrenamiento mental y cómo llegué a la élite.",
+    avatar_url: "https://api.dicebear.com/9.x/notionists/svg?seed=mateo&backgroundColor=ffdfbf",
+    price_usd: 40,
+    session_duration_sec: 120,
+    timezone: "America/Buenos_Aires",
+    is_active: true,
+    category: "Deportista",
+    rating: 4.8,
+    total_sessions: 215,
+  },
+  {
+    id: "3",
+    user_id: "u3",
+    stage_name: "Luna Sáenz",
+    bio: "Cantante top 10 en Spotify. Charla en vivo, preguntas sobre música, o simplemente un momento especial.",
+    avatar_url: "https://api.dicebear.com/9.x/notionists/svg?seed=luna&backgroundColor=d1d4f9",
+    price_usd: 30,
+    session_duration_sec: 120,
+    timezone: "America/Buenos_Aires",
+    is_active: true,
+    category: "Cantante",
+    rating: 4.95,
+    total_sessions: 518,
+  },
+  {
+    id: "4",
+    user_id: "u4",
+    stage_name: "Tomás Herrera",
+    bio: "Youtuber con 2M de subs. Hablo de tech, emprendimiento y todo lo que me preguntes en tiempo real.",
+    avatar_url: "https://api.dicebear.com/9.x/notionists/svg?seed=tomas&backgroundColor=c0aede",
+    price_usd: 15,
+    session_duration_sec: 120,
+    timezone: "America/Argentina/Cordoba",
+    is_active: true,
+    category: "Creator",
+    rating: 4.7,
+    total_sessions: 890,
+  },
+  {
+    id: "5",
+    user_id: "u5",
+    stage_name: "Sofía Mendez",
+    bio: "Chef con estrella Michelin. Comparto tips de cocina, recetas secretas o simplemente hablamos de gastronomía.",
+    avatar_url: "https://api.dicebear.com/9.x/notionists/svg?seed=sofia&backgroundColor=ffd5dc",
+    price_usd: 20,
+    session_duration_sec: 120,
+    timezone: "America/Santiago",
+    is_active: true,
+    category: "Chef",
+    rating: 4.85,
+    total_sessions: 127,
+  },
+  {
+    id: "6",
+    user_id: "u6",
+    stage_name: "Diego Paredes",
+    bio: "Actor de teatro y cine independiente. Doy clases rápidas de actuación o lo que necesites.",
+    avatar_url: "https://api.dicebear.com/9.x/notionists/svg?seed=diego&backgroundColor=b6e3f4",
+    price_usd: 18,
+    session_duration_sec: 120,
+    timezone: "America/Bogota",
+    is_active: true,
+    category: "Actor",
+    rating: 4.6,
+    total_sessions: 74,
+  },
+];
+
+export const MOCK_USER: User = {
+  id: "fan1",
+  email: "fan@example.com",
+  role: "fan",
+  name: "Juan Pérez",
+  created_at: new Date().toISOString(),
+};
+
+export const MOCK_BOOKINGS: Booking[] = [
+  {
+    id: "b1",
+    user_id: "fan1",
+    talent_id: "1",
+    talent: MOCK_TALENTS[0],
+    starts_at: new Date(Date.now() + 1000 * 60 * 60 * 2).toISOString(), // 2 hours from now
+    ends_at: new Date(Date.now() + 1000 * 60 * 60 * 2 + 120000).toISOString(),
+    status: "confirmed",
+    price: 25,
+    duration_sec: 120,
+  },
+  {
+    id: "b2",
+    user_id: "fan1",
+    talent_id: "3",
+    talent: MOCK_TALENTS[2],
+    starts_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // yesterday
+    ends_at: new Date(Date.now() - 1000 * 60 * 60 * 24 + 120000).toISOString(),
+    status: "completed",
+    price: 30,
+    duration_sec: 120,
+  },
+  {
+    id: "b3",
+    user_id: "fan1",
+    talent_id: "2",
+    talent: MOCK_TALENTS[1],
+    starts_at: new Date(Date.now() + 1000 * 60 * 60 * 48).toISOString(), // 2 days from now
+    ends_at: new Date(Date.now() + 1000 * 60 * 60 * 48 + 120000).toISOString(),
+    status: "pending",
+    price: 40,
+    duration_sec: 120,
+  },
+];
+
+export const CATEGORIES = ["Todos", "Actriz", "Deportista", "Cantante", "Creator", "Chef", "Actor"];
