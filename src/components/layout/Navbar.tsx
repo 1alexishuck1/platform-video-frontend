@@ -51,17 +51,19 @@ export function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 md:h-16 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg btn-gradient flex items-center justify-center shadow-lg">
-            <Video className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-bold text-lg gradient-text">PlatfomLive</span>
-        </Link>
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 md:h-16 grid grid-cols-2 md:grid-cols-3 items-center">
+        {/* Left: Logo */}
+        <div className="flex justify-start">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="w-8 h-8 rounded-lg btn-gradient flex items-center justify-center shadow-lg">
+              <Video className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-bold text-lg gradient-text hidden sm:inline-block">PlatfomLive</span>
+          </Link>
+        </div>
 
-        {/* Desktop nav - Centered */}
-        <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-8">
+        {/* Center: Desktop nav */}
+        <div className="hidden md:flex justify-center items-center gap-8">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -69,7 +71,7 @@ export function Navbar() {
               className={cn(
                 "text-sm font-medium transition-all hover:text-violet-300",
                 pathname === link.href
-                  ? "text-violet-300 scale-105"
+                  ? "text-violet-300"
                   : "text-muted-foreground"
               )}
             >
@@ -78,92 +80,94 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* Auth area */}
-        <div className="hidden md:flex items-center gap-3">
-          {!isHydrated ? (
-             <div className="w-20 h-8 rounded-md bg-white/5 animate-pulse" />
-          ) : isAuthenticated && user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-2 rounded-full p-1 hover:bg-white/5 transition-colors">
-                  <Avatar className="w-8 h-8 border border-violet-500/30">
-                    <AvatarFallback className="bg-violet-900/50 text-violet-300 text-xs font-semibold">
-                      {getInitials(user.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm text-muted-foreground max-w-[120px] truncate">
-                    {user.name}
-                  </span>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 bg-card border-white/10">
-                {user && (user.role === "fan" || (user.role as string) === "FAN") && (
-                  <>
-                    <DropdownMenuItem 
-                      onClick={() => router.push("/dashboard")}
-                      className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
-                    >
-                      <LayoutDashboard className="w-4 h-4" /> Mis reservas
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => router.push("/profile")}
-                      className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
-                    >
-                      <User className="w-4 h-4" /> Mi perfil
-                    </DropdownMenuItem>
-                  </>
-                )}
-                {user && (user.role === "talent" || (user.role as string) === "TALENT") && (
-                  <>
-                    <DropdownMenuItem 
-                      onClick={() => router.push("/talent/dashboard")}
-                      className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
-                    >
-                      <LayoutDashboard className="w-4 h-4" /> Dashboard
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => router.push("/talent/agenda")}
-                      className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
-                    >
-                      <Calendar className="w-4 h-4" /> Mi agenda
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => router.push("/talent/profile")}
-                      className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
-                    >
-                      <User className="w-4 h-4" /> Perfil público
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => router.push("/talent/edit")}
-                      className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
-                    >
-                      <User className="w-4 h-4" /> Editar perfil
-                    </DropdownMenuItem>
-                  </>
-                )}
-                <DropdownMenuSeparator className="bg-white/10" />
-                <DropdownMenuItem
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 text-red-400 cursor-pointer focus:text-red-400"
+        {/* Right: Auth area & Mobile trigger */}
+        <div className="flex justify-end items-center gap-3">
+          <div className="hidden md:flex items-center gap-3">
+            {!isHydrated ? (
+               <div className="w-20 h-8 rounded-md bg-white/5 animate-pulse" />
+            ) : isAuthenticated && user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-2 rounded-full p-1 hover:bg-white/5 transition-colors">
+                    <Avatar className="w-8 h-8 border border-violet-500/30">
+                      <AvatarFallback className="bg-violet-900/50 text-violet-300 text-xs font-semibold">
+                        {getInitials(user.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm text-muted-foreground max-w-[120px] truncate">
+                      {user.name}
+                    </span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-card border-white/10">
+                  {user && (user.role === "fan" || (user.role as string) === "FAN") && (
+                    <>
+                      <DropdownMenuItem 
+                        onClick={() => router.push("/dashboard")}
+                        className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
+                      >
+                        <LayoutDashboard className="w-4 h-4" /> Mis reservas
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => router.push("/profile")}
+                        className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
+                      >
+                        <User className="w-4 h-4" /> Mi perfil
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  {user && (user.role === "talent" || (user.role as string) === "TALENT") && (
+                    <>
+                      <DropdownMenuItem 
+                        onClick={() => router.push("/talent/dashboard")}
+                        className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
+                      >
+                        <LayoutDashboard className="w-4 h-4" /> Dashboard
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => router.push("/talent/agenda")}
+                        className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
+                      >
+                        <Calendar className="w-4 h-4" /> Mi agenda
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => router.push("/talent/profile")}
+                        className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
+                      >
+                        <User className="w-4 h-4" /> Perfil público
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => router.push("/talent/edit")}
+                        className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
+                      >
+                        <User className="w-4 h-4" /> Editar perfil
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  <DropdownMenuSeparator className="bg-white/10" />
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 text-red-400 cursor-pointer focus:text-red-400"
+                  >
+                    <LogOut className="w-4 h-4" /> Cerrar sesión
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Link 
+                  href="/login"
+                  className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "text-muted-foreground hover:text-foreground")}
                 >
-                  <LogOut className="w-4 h-4" /> Cerrar sesión
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
-              <Link 
-                href="/login"
-                className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "text-muted-foreground hover:text-foreground")}
-              >
-                Iniciar sesión
-              </Link>
-              <Link 
-                href="/register"
-                className={cn(buttonVariants({ size: "sm" }), "btn-gradient text-white border-0 shadow-lg")}
-              >
-                Registrarse
-              </Link>
-            </>
-          )}
+                  Iniciar sesión
+                </Link>
+                <Link 
+                  href="/register"
+                  className={cn(buttonVariants({ size: "sm" }), "btn-gradient text-white border-0 shadow-lg")}
+                >
+                  Registrarse
+                </Link>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Mobile menu */}
