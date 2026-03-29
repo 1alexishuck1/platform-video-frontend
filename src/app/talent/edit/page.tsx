@@ -32,7 +32,7 @@ export default function TalentEditPage() {
   });
 
   useEffect(() => {
-    if (isHydrated && (!isAuthenticated || user?.role !== "TALENT" && user?.role !== "talent")) {
+    if (isHydrated && (!isAuthenticated || user?.role !== "talent")) {
       router.push("/");
       return;
     }
