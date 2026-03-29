@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthStore } from "@/store/auth";
 import { apiFetch } from "@/lib/api";
+import { Navbar } from "@/components/layout/Navbar";
 
 const schema = z.object({
   email: z.string().email("Email inválido"),
@@ -53,7 +54,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 animated-bg">
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <Navbar />
       {/* Background glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl" />

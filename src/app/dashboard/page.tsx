@@ -81,7 +81,7 @@ function FanDashboardContent() {
     <div className="min-h-screen pb-20">
       <Navbar />
       
-      <div className="pt-24 md:pt-32 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+      <main className="pt-24 md:pt-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         {success && (
           <div className="mb-8 p-4 rounded-2xl bg-green-500/10 border border-green-500/20 text-green-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-4">
             <CheckCircle2 className="w-5 h-5 shrink-0" />
@@ -182,7 +182,7 @@ function FanDashboardContent() {
           </section>
 
         </div>
-      </div>
+      </main>
     </div>
   );
 }

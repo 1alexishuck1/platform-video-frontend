@@ -107,7 +107,7 @@ export default function TalentDashboard() {
     <div className="min-h-screen pb-20">
       <Navbar />
       
-      <div className="pt-32 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+      <main className="pt-24 md:pt-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 mb-10">
           <div className="animate-in fade-in slide-in-from-left-4 duration-500">
             <h1 className="text-3xl sm:text-4xl font-bold">¡Hola, {user?.name}!</h1>
@@ -246,7 +246,7 @@ export default function TalentDashboard() {
           </section>
         )}
 
-      </div>
+      </main>
     </div>
   );
 }
