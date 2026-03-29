@@ -37,7 +37,7 @@ export default function ProfilePage() {
       setFormData({
         name: user.name || "",
         email: user.email || "",
-        avatarUrl: user.avatarUrl || ""
+        avatarUrl: user.avatar_url || ""
       });
     }
   }, [isHydrated, isAuthenticated, user, router]);
