@@ -7,13 +7,20 @@ import { TalentProfile } from "@/types";
 
 async function getTalents(): Promise<TalentProfile[]> {
   try {
-    const res = await fetch(process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/talents", { 
-      next: { revalidate: 60 } 
+    const apiUrl = "https://platform-video-backend-production.up.railway.app/api/talents";
+    console.log("Fetching talents from:", apiUrl);
+    const res = await fetch(apiUrl, { 
+      next: { revalidate: 0 } 
     });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      console.error("Fetch failed with status:", res.status);
+      return [];
+    }
     const data = await res.json();
+    console.log("Talents data received:", data.talents?.length);
     return data.talents || [];
   } catch (err) {
+    console.error("Talent fetch error:", err);
     return [];
   }
 }
@@ -21,7 +28,7 @@ async function getTalents(): Promise<TalentProfile[]> {
 export default async function TalentsPage() {
   const talents = await getTalents();
   return (
-    <div className="min-h-screen animated-bg pb-20">
+    <div className="min-h-screen">
       <Navbar />
       
       <main className="pt-24 md:pt-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">

@@ -11,8 +11,9 @@ import { TalentProfile } from "@/types";
 
 async function getTalents(): Promise<TalentProfile[]> {
   try {
-    const res = await fetch(process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/talents", { 
-      next: { revalidate: 60 } 
+    const apiUrl = "https://platform-video-backend-production.up.railway.app/api/talents";
+    const res = await fetch(apiUrl, { 
+      next: { revalidate: 0 } 
     });
     if (!res.ok) return [];
     const data = await res.json();
@@ -45,7 +46,7 @@ export default async function HomePage() {
   const featured = allTalents.slice(0, 3);
 
   return (
-    <div className="min-h-screen animated-bg">
+    <div className="min-h-screen">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
