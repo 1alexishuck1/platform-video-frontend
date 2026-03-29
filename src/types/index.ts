@@ -46,11 +46,15 @@ export interface Booking {
   talent?: TalentProfile;
   fan?: User;
   starts_at: string;
+  startsAt?: string; // Real API
   ends_at: string;
-  status: BookingStatus;
+  endsAt?: string; // Real API
+  status: BookingStatus | string;
   payment_id?: string;
   price: number;
+  priceUsd?: number; // Real API
   duration_sec: number;
+  durationSec?: number; // Real API
 }
 
 export interface AuthState {
