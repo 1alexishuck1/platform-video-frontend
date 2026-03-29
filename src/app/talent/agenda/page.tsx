@@ -46,7 +46,7 @@ export default function TalentAgendaPage() {
   const [batchEnd, setBatchEnd] = useState("12:00");
 
   useEffect(() => {
-    if (isHydrated && (!isAuthenticated || user?.role !== "TALENT" && user?.role !== "talent")) {
+    if (isHydrated && (!isAuthenticated || user?.role !== "talent")) {
       router.push("/");
       return;
     }
