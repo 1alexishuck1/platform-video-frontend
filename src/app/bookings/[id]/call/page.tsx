@@ -156,7 +156,10 @@ export default function VideoCallRoom() {
         setParticipantCount(2);
         setIsEstablishingConnection(true);
 
-        if (peerRef.current) peerRef.current.destroy();
+        if (peerRef.current) {
+          console.log("Cleaning up stale peer before new connection");
+          peerRef.current.destroy();
+        }
 
         const peer = new Peer({
           initiator: true, 
