@@ -45,61 +45,62 @@ export default async function HomePage() {
   const featured = allTalents.slice(0, 3);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen animated-bg">
       <Navbar />
 
-      {/* Hero */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
-        <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-2 mb-8">
-          <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
-          <span className="text-sm text-violet-300 font-medium">Más de 500 sesiones completadas</span>
-        </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Hero */}
+        <section className="pt-32 pb-24 text-center">
+          <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-2 mb-8">
+            <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
+            <span className="text-sm text-violet-300 font-medium whitespace-nowrap">Más de 500 sesiones completadas</span>
+          </div>
 
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 tracking-tight">
-          Conocé a tus{" "}
-          <span className="gradient-text">favoritos</span>
-          <br />
-          en persona.
-        </h1>
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.15] mb-6 tracking-tight">
+            Conocé a tus{" "}
+            <span className="gradient-text">favoritos</span>
+            <br />
+            en persona.
+          </h1>
 
-        <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-          Reservá una videollamada exclusiva de 2 minutos con actores, deportistas, cantantes y creadores.
-          Un momento único, real y en tiempo real.
-        </p>
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed">
+            Reservá una videollamada exclusiva de 2 minutos con actores, deportistas, cantantes y creadores.
+            Un momento único, real y en tiempo real.
+          </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link 
-            href="/talents" 
-            className={cn(buttonVariants({ size: "lg" }), "btn-gradient text-white border-0 shadow-xl text-base px-8 gap-2")}
-          >
-            Ver talentos <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link 
-            href="/register?role=talent" 
-            className={cn(buttonVariants({ size: "lg", variant: "outline" }), "border-white/15 text-muted-foreground hover:text-foreground hover:border-white/30 text-base px-8")}
-          >
-            Soy un talento
-          </Link>
-        </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link 
+              href="/talents" 
+              className={cn(buttonVariants({ size: "lg" }), "btn-gradient text-white border-0 shadow-xl text-base px-10 h-14 gap-2 w-full sm:w-auto")}
+            >
+              Ver talentos <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link 
+              href="/register?role=talent" 
+              className={cn(buttonVariants({ size: "lg", variant: "outline" }), "border-white/10 glass text-muted-foreground hover:text-foreground h-14 text-base px-10 w-full sm:w-auto")}
+            >
+              Soy un talento
+            </Link>
+          </div>
 
-        {/* Stats */}
-        <div className="flex flex-wrap justify-center gap-12 mt-16 pt-16 border-t border-white/5">
-          {[
-            { value: "500+", label: "Sesiones completadas" },
-            { value: "120+", label: "Talentos activos" },
-            { value: "4.9★", label: "Calificación promedio" },
-            { value: "2 min", label: "Por sesión" },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className="text-3xl font-bold gradient-text">{stat.value}</div>
-              <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-24 pt-16 border-t border-border">
+            {[
+              { value: "500+", label: "Sesiones completadas" },
+              { value: "120+", label: "Talentos activos" },
+              { value: "4.9★", label: "Calificación" },
+              { value: "2 min", label: "Por sesión" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center group">
+                <div className="text-3xl font-bold gradient-text group-hover:scale-110 transition-transform duration-300">{stat.value}</div>
+                <div className="text-sm text-muted-foreground mt-1 font-medium">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </section>
 
-      {/* Featured talents */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        {/* Featured talents */}
+        <section className="py-24">
         <div className="flex items-end justify-between mb-10">
           <div>
             <h2 className="text-3xl font-bold">Talentos destacados</h2>
@@ -137,8 +138,10 @@ export default async function HomePage() {
         </div>
       </section>
 
+      </main>
+
       {/* Footer */}
-      <footer className="border-t border-white/5 py-10 px-4 text-center text-sm text-muted-foreground">
+      <footer className="border-t border-white/5 py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center text-sm text-muted-foreground">
         <p>© 2025 PlatfomLive. Todos los derechos reservados.</p>
       </footer>
     </div>
