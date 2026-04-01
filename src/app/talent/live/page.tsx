@@ -256,12 +256,19 @@ export default function TalentLiveStudio() {
       return;
     }
     
+    // Sync logic (only if not already counting)
     if (timeLeft === null) {
       const start = new Date(activeBooking.startsAt).getTime();
-      const duration = activeBooking.durationSec; 
+      const duration = activeBooking.durationSec || 600; // Default 10 min if missing
       const now = Date.now();
       const diff = Math.floor((start + duration * 1000 - now) / 1000);
-      setTimeLeft(Math.max(0, diff));
+      
+      // If session just started (or clock drift is within 30s), use full duration to be safe
+      if (now - start < 30000) {
+        setTimeLeft(duration);
+      } else {
+        setTimeLeft(Math.max(0, diff));
+      }
       return;
     }
 
@@ -313,8 +320,14 @@ export default function TalentLiveStudio() {
     setIsCalling(true);
     try {
       const res = await apiFetch(`/bookings/${bookingId}/start`, { method: "POST" });
-      setActiveBooking(res.booking);
-      setSidebarMode("chat");
+      const booking = res.booking;
+      setActiveBooking(booking);
+      setTimeLeft(booking.durationSec); // Force full duration on start
+      
+      // Auto-open chat ONLY on desktop
+      if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+        setSidebarMode("chat");
+      }
     } catch (err) {
       toast.error("Error al iniciar sesión.");
     } finally {
@@ -411,6 +424,11 @@ export default function TalentLiveStudio() {
                    {/* REMOTE VIDEO CONTAINER */}
                    <motion.div 
                      layout
+                     drag={layoutMode === "pip" && pinnedParticipant === "local"}
+                     dragConstraints={videoContainerRef}
+                     dragElastic={0.1}
+                     dragMomentum={false}
+                     whileDrag={{ scale: 1.05, opacity: 0.9, zIndex: 50 }}
                      className={cn(
                        "relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl transition-all duration-500",
                        layoutMode === "grid" 
@@ -440,10 +458,11 @@ export default function TalentLiveStudio() {
                    {/* LOCAL VIDEO CONTAINER */}
                    <motion.div 
                      layout
-                     drag={layoutMode === "pip"}
+                     drag={layoutMode === "pip" && pinnedParticipant === "remote"}
                      dragConstraints={videoContainerRef}
                      dragElastic={0.1}
                      dragMomentum={false}
+                     whileDrag={{ scale: 1.05, opacity: 0.9, zIndex: 50 }}
                      className={cn(
                        "relative rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl transition-all duration-500",
                        layoutMode === "grid" 
