@@ -97,51 +97,44 @@ export function Navbar() {
                       {user.name}
                     </span>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 bg-card border-white/10">
-                  {user && (user.role === "fan" || (user.role as string) === "FAN") && (
-                    <>
-                      <DropdownMenuItem 
-                        render={
-                          <Link href="/dashboard" className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors">
-                            <LayoutDashboard className="w-4 h-4" /> Mis sesiones
-                          </Link>
-                        }
-                      />
-                      <DropdownMenuItem 
-                        render={
-                          <Link href="/profile" className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors">
-                            <User className="w-4 h-4" /> Mi perfil
-                          </Link>
-                        }
-                      />
-                    </>
-                  )}
-                  {user && (user.role === "talent" || (user.role as string) === "TALENT") && (
-                    <>
-                      <DropdownMenuItem 
-                        render={
-                          <Link href="/talent/dashboard" className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors">
-                            <LayoutDashboard className="w-4 h-4" /> Dashboard
-                          </Link>
-                        }
-                      />
+                <DropdownMenuContent align="end" className="w-56 bg-card border-white/10 p-2">
+                  <div className="px-2 py-1.5 mb-1">
+                    <p className="text-[10px] font-black uppercase text-violet-400 tracking-widest">Mi Actividad</p>
+                  </div>
+                  <DropdownMenuItem 
+                    render={
+                      <Link href="/dashboard" className="flex items-center gap-3 cursor-pointer w-full px-2 py-2 rounded-xl transition-colors hover:bg-white/5">
+                        <Calendar className="w-4 h-4 text-violet-400" /> Mis sesiones
+                      </Link>
+                    }
+                  />
+                  <DropdownMenuItem 
+                    render={
+                      <Link href="/profile" className="flex items-center gap-3 cursor-pointer w-full px-2 py-2 rounded-xl transition-colors hover:bg-white/5">
+                        <User className="w-4 h-4 text-violet-400" /> Mi perfil
+                      </Link>
+                    }
+                  />
 
-                      <DropdownMenuItem 
-                        render={
-                          <Link href="/talent/profile" className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors">
-                            <User className="w-4 h-4" /> Perfil público
-                          </Link>
-                        }
-                      />
-                      <DropdownMenuItem 
-                        render={
-                          <Link href="/talent/edit" className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors">
-                            <User className="w-4 h-4" /> Editar perfil
-                          </Link>
-                        }
-                      />
-                    </>
-                  )}
+                  <DropdownMenuSeparator className="bg-white/5 my-2" />
+                  
+                  <div className="px-2 py-1.5 mb-1">
+                    <p className="text-[10px] font-black uppercase text-pink-400 tracking-widest">Creador</p>
+                  </div>
+                  <DropdownMenuItem 
+                    render={
+                      <Link href="/talent/dashboard" className="flex items-center gap-3 cursor-pointer w-full px-2 py-2 rounded-xl transition-colors hover:bg-white/5">
+                        <LayoutDashboard className="w-4 h-4 text-pink-400" /> Modo Host
+                      </Link>
+                    }
+                  />
+                  <DropdownMenuItem 
+                    render={
+                      <Link href="/talent/profile" className="flex items-center gap-3 cursor-pointer w-full px-2 py-2 rounded-xl transition-colors hover:bg-white/5">
+                        <User className="w-4 h-4 text-pink-500" /> Vista pública
+                      </Link>
+                    }
+                  />
                   <DropdownMenuSeparator className="bg-white/10" />
                   <DropdownMenuItem
                     onClick={handleLogout}
@@ -221,29 +214,15 @@ export function Navbar() {
                 <div className="space-y-4 pt-4 border-t border-white/5">
                   <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest px-2">Mi Cuenta</p>
                   <div className="grid gap-1">
-                    {(user.role === "fan" || (user.role as string) === "FAN") ? (
-                      <>
-                        <Link href="/dashboard" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
-                          <LayoutDashboard className="w-5 h-5 text-violet-400" /> Mis sesiones
-                        </Link>
-                        <Link href="/profile" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
-                          <User className="w-5 h-5 text-violet-400" /> Mi perfil
-                        </Link>
-                      </>
-                    ) : (
-                      <>
-                        <Link href="/talent/dashboard" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
-                          <LayoutDashboard className="w-5 h-5 text-violet-400" /> Dashboard
-                        </Link>
-
-                        <Link href="/talent/profile" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
-                          <User className="w-5 h-5 text-violet-400" /> Perfil público
-                        </Link>
-                        <Link href="/talent/edit" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
-                          <User className="w-5 h-5 text-violet-400" /> Editar perfil
-                        </Link>
-                      </>
-                    )}
+                    <Link href="/dashboard" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
+                      <Calendar className="w-5 h-5 text-violet-400" /> Mis sesiones
+                    </Link>
+                    <Link href="/talent/dashboard" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
+                      <LayoutDashboard className="w-5 h-5 text-pink-400" /> Modo Host
+                    </Link>
+                    <Link href="/profile" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
+                      <User className="w-5 h-5 text-blue-400" /> Mi perfil
+                    </Link>
                   </div>
                 </div>
               )}
@@ -287,7 +266,7 @@ export function Navbar() {
                 </Avatar>
                 <div className="overflow-hidden">
                   <p className="text-sm font-semibold text-white truncate">{user.name}</p>
-                  <p className="text-xs text-muted-foreground capitalize">{(user.role || "").toLowerCase()}</p>
+                  <p className="text-xs text-muted-foreground">Usuario verificado</p>
                 </div>
               </div>
             )}

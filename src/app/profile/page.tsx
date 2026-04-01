@@ -5,7 +5,7 @@ import { useHydratedAuth } from "@/store/auth";
 import { useRouter } from "next/navigation";
 import { 
   User, Mail, Shield, Camera, Save, Loader2, AlertCircle, 
-  Settings, Bell, CreditCard, LogOut, ChevronRight, CheckCircle2 
+  Settings, Bell, CreditCard, LogOut, ChevronRight, CheckCircle2, LayoutDashboard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,7 +37,7 @@ export default function ProfilePage() {
       setFormData({
         name: user.name || "",
         email: user.email || "",
-        avatarUrl: user.avatar_url || ""
+        avatarUrl: user.avatarUrl || ""
       });
     }
   }, [isHydrated, isAuthenticated, user, router]);
@@ -137,9 +137,16 @@ export default function ProfilePage() {
                 </div>
               </div>
               <h2 className="font-bold text-xl text-white truncate w-full">{user.name}</h2>
-              <Badge className="mt-2 bg-violet-600/20 text-violet-400 border-violet-500/30 font-bold uppercase text-[10px] tracking-widest px-3">
-                {user.role}
-              </Badge>
+              <div className="flex items-center gap-2 mt-2">
+                <Badge className="bg-violet-600/20 text-violet-400 border-violet-500/30 font-bold uppercase text-[10px] tracking-widest px-3">
+                  {user.role}
+                </Badge>
+                {user.isVerified && (
+                  <Badge className="bg-blue-600/20 text-blue-400 border-blue-500/30 font-bold uppercase text-[10px] tracking-widest px-3 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> Verificado
+                  </Badge>
+                )}
+              </div>
             </div>
 
             <nav className="p-2 rounded-3xl glass-card border border-white/5 space-y-1">
@@ -259,28 +266,26 @@ export default function ProfilePage() {
                       </div>
                     </form>
 
-                    {user.role === "talent" && (
-                      <div className="mt-12 p-6 rounded-3xl bg-violet-600/10 border border-violet-500/20">
-                        <div className="flex items-start gap-4">
-                          <div className="p-2 bg-violet-600/20 rounded-xl mt-1">
-                            <AlertCircle className="w-5 h-5 text-violet-400" />
-                          </div>
-                          <div>
-                            <h4 className="text-violet-300 font-bold">Perfil de Talento Activo</h4>
-                            <p className="text-sm text-violet-200/60 mt-1 leading-relaxed">
-                              Como talento, podés configurar tu biografía, fotos de galería y precios en la sección avanzada del Dashboard.
-                            </p>
-                            <Button 
-                              variant="link" 
-                              onClick={() => router.push('/talent/edit')}
-                              className="text-violet-400 p-0 h-auto mt-2 hover:text-violet-300"
-                            >
-                              Ir a Edición de Talento →
-                            </Button>
-                          </div>
+                    <div className="mt-12 p-6 rounded-3xl bg-violet-600/10 border border-violet-500/20">
+                      <div className="flex items-start gap-4">
+                        <div className="p-2 bg-violet-600/20 rounded-xl mt-1">
+                          <LayoutDashboard className="w-5 h-5 text-violet-400" />
+                        </div>
+                        <div>
+                          <h4 className="text-violet-300 font-bold">Modo Host</h4>
+                          <p className="text-sm text-violet-200/60 mt-1 leading-relaxed">
+                            Cualquier usuario puede transmitir y conocer a sus seguidores. Configurá tu perfil de creador para empezar.
+                          </p>
+                          <Button 
+                            variant="link" 
+                            onClick={() => router.push('/talent/dashboard')}
+                            className="text-violet-400 p-0 h-auto mt-2 hover:text-violet-300"
+                          >
+                            Ir al Studio →
+                          </Button>
                         </div>
                       </div>
-                    )}
+                    </div>
                   </div>
                 )}
 

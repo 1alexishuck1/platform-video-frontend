@@ -1,15 +1,16 @@
 // Core domain types — mirrors backend DB schema
 
-export type UserRole = "fan" | "talent" | "admin";
-export type BookingStatus = "pending" | "confirmed" | "completed" | "cancelled" | "waiting_in_queue" | "in_progress";
+export type UserRole = "USER" | "ADMIN";
+export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "WAITING_IN_QUEUE" | "IN_PROGRESS";
 
 export interface User {
   id: string;
   email: string;
   role: UserRole;
   name: string;
-  avatar_url?: string;
-  created_at: string;
+  isVerified?: boolean;
+  avatarUrl?: string; // Corrected from avatar_url to match backend camelCase
+  createdAt: string;
 }
 
 export interface TalentProfile {
