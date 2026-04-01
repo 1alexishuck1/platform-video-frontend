@@ -28,17 +28,17 @@ export function TalentCard({ talent }: TalentCardProps) {
     <Link href={`/talents/${talent.id}`} className="block group">
       <div className="glass card-hover rounded-2xl overflow-hidden h-full flex flex-col">
         {/* Avatar area */}
-        <div className="relative h-48 bg-gradient-to-br from-violet-900/30 to-pink-900/20 flex items-center justify-center overflow-hidden">
+        <div className="relative h-40 sm:h-48 bg-gradient-to-br from-violet-900/30 to-pink-900/20 flex items-center justify-center overflow-hidden">
           <img
             src={avatarUrl}
             alt={stageName}
             onError={handleError}
-            className="w-32 h-32 rounded-full border-4 border-white/10 group-hover:scale-105 transition-transform duration-300 object-cover"
+            className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white/10 group-hover:scale-105 transition-transform duration-300 object-cover"
           />
           {/* Category badge */}
           {talent.category && (
             <div className="absolute top-3 left-3">
-              <Badge className="bg-violet-500/20 text-violet-300 border border-violet-500/30 text-xs">
+              <Badge className="bg-violet-500/20 text-violet-300 border border-violet-500/30 text-[10px] sm:text-xs">
                 {talent.category}
               </Badge>
             </div>
@@ -46,21 +46,21 @@ export function TalentCard({ talent }: TalentCardProps) {
           {/* Rating */}
           {talent.rating && (
             <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/40 rounded-full px-2 py-1">
-              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-              <span className="text-xs font-semibold text-white">{talent.rating || 4.9}</span>
+              <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-yellow-400 text-yellow-400" />
+              <span className="text-[10px] sm:text-xs font-semibold text-white">{talent.rating || 4.9}</span>
             </div>
           )}
           {/* Live indicator */}
           {talent.isLive && (
-            <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-red-500/90 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg animate-pulse">
-              <div className="w-1.5 h-1.5 bg-white rounded-full" />
+            <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-red-500/90 text-white px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest shadow-lg animate-pulse">
+              <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-white rounded-full" />
               En vivo
             </div>
           )}
         </div>
 
         {/* Info */}
-        <div className="p-5 flex flex-col flex-1 gap-3">
+        <div className="p-4 sm:p-5 flex flex-col flex-1 gap-2.5 sm:gap-3">
           <div>
             <h3 className="font-bold text-lg text-white group-hover:text-violet-300 transition-colors">
               {stageName}

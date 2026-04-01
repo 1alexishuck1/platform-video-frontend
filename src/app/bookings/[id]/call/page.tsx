@@ -100,11 +100,9 @@ export default function VideoCallRoom() {
         if (isLocal) {
           if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
           setMediaStream(stream);
-          if (videoRef.current) videoRef.current.srcObject = stream;
         } else {
           if (remoteStream) remoteStream.getTracks().forEach(t => t.stop());
           setRemoteStream(stream);
-          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = stream;
         }
 
         // Pre-select current if not set and is local
@@ -279,6 +277,20 @@ export default function VideoCallRoom() {
     }
   }, [messages]);
 
+  // Persistent Local Video Sync
+  useEffect(() => {
+    if (mediaStream && videoRef.current && !camOff) {
+      videoRef.current.srcObject = mediaStream;
+    }
+  }, [mediaStream, camOff, booking?.status]);
+
+  // Persistent Remote Video Sync
+  useEffect(() => {
+    if (remoteStream && remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = remoteStream;
+    }
+  }, [remoteStream, booking?.status]);
+
   // Timer countdown
   useEffect(() => {
     if (isConnecting || timeLeft === null || booking?.status !== "IN_PROGRESS") return;
@@ -393,70 +405,68 @@ export default function VideoCallRoom() {
           </div>
 
           {/* Video Grid */}
-          <div className="flex-1 relative flex items-center justify-center bg-[#0a0a0c]">
-            {/* Remote / Main View */}
+          <div className="flex-1 relative flex items-center justify-center bg-[#050505]">
+            {/* Main Stage */}
             <div className="absolute inset-0 flex items-center justify-center">
               {isConnecting ? (
-                <div className="flex flex-col items-center gap-4 text-white animate-pulse">
-                  {booking.talent?.avatarUrl || booking.talent?.avatar_url ? (
-                    <img src={booking.talent?.avatarUrl || booking.talent?.avatar_url} className="w-24 h-24 rounded-full border-4 border-white/10" />
-                  ) : (
-                    <div className="w-24 h-24 rounded-full bg-violet-600/30 border-4 border-white/10 flex items-center justify-center text-3xl font-bold">
-                      {(booking.talent?.stageName || booking.talent?.name || "T").slice(0, 2).toUpperCase()}
-                    </div>
-                  )}
-                  <p className="text-lg font-medium opacity-80">Cargando sesión...</p>
+                <div className="flex flex-col items-center gap-6 text-white animate-pulse">
+                   <div className="w-20 h-20 rounded-full bg-violet-600/20 border border-violet-500/30 flex items-center justify-center">
+                      <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+                   </div>
+                   <p className="text-sm font-black uppercase tracking-[0.2em] opacity-40">Estableciendo conexión...</p>
                 </div>
               ) : booking.status === "WAITING_IN_QUEUE" ? (
-                <div className="relative w-full h-full bg-[#050505] flex items-center justify-center">
-                   <div className="absolute inset-0 bg-gradient-to-b from-violet-900/10 to-black/80 pointer-events-none" />
+                <div className="relative w-full h-full flex flex-col items-center justify-center px-6">
+                   <div className="absolute inset-0 bg-gradient-to-b from-violet-900/5 to-black pointer-events-none" />
                    
-                   <div className="z-10 text-center max-w-md px-6">
-                      <div className="relative mb-8 inline-block">
-                         <div className="absolute inset-0 bg-violet-600/30 rounded-full animate-ping scale-150" />
-                         {booking.talent?.avatarUrl ? (
-                           <img src={booking.talent.avatarUrl} className="relative w-32 h-32 rounded-full border-4 border-violet-500/30 object-cover shadow-2xl" />
-                         ) : (
-                           <div className="relative w-32 h-32 rounded-full bg-violet-900/40 border-4 border-violet-500/30 flex items-center justify-center text-5xl font-black">
-                             {booking.talent?.stageName?.slice(0, 2)}
-                           </div>
-                         )}
+                   <div className="z-10 w-full max-w-lg space-y-12">
+                      <div className="text-center space-y-4">
+                        <div className="inline-block px-4 py-1.5 rounded-full bg-violet-600/10 border border-violet-500/20 text-violet-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                           Sala de espera virtual
+                        </div>
+                        <h2 className="text-5xl sm:text-6xl font-black text-white uppercase tracking-tighter leading-none">
+                           Estás en <br/> la cola
+                        </h2>
+                        <p className="text-violet-300/60 font-bold text-lg">Esperando a {booking.talent?.stageName || booking.talent?.name}</p>
+                      </div>
+
+                      {/* Main Self Preview - Much larger and centered */}
+                      <div className="relative aspect-video sm:aspect-square sm:w-80 mx-auto rounded-[2.5rem] border-4 border-white/10 overflow-hidden shadow-[0_0_80px_rgba(139,92,246,0.15)] bg-black group">
+                         <video 
+                           ref={videoRef}
+                           autoPlay 
+                           muted 
+                           playsInline 
+                           className="w-full h-full object-cover scale-x-[-1]"
+                         />
+                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                         <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-white/80">Vista previa</span>
+                         </div>
                       </div>
                       
-                      <h2 className="text-3xl font-black mb-3 text-white uppercase tracking-tighter">Sala de Espera</h2>
-                      <p className="text-lg text-violet-300 font-bold mb-8">Estás en la cola de {booking.talent?.stageName}</p>
-                      
-                      <div className="grid grid-cols-2 gap-4 mb-10">
-                         <div className="glass p-4 rounded-2xl border-white/10">
-                            <p className="text-[10px] font-bold uppercase text-white/40 mb-1">Tu lugar</p>
-                            <p className="text-2xl font-black text-white">#{booking.queuePosition || "1"}</p>
+                      <div className="grid grid-cols-2 gap-4">
+                         <div className="glass p-6 rounded-[2rem] border-white/10 text-center space-y-1">
+                            <p className="text-[10px] font-black uppercase text-white/30 tracking-widest">Tu lugar</p>
+                            <p className="text-4xl font-black text-white">#{booking.queuePosition || "1"}</p>
                          </div>
-                         <div className="glass p-4 rounded-2xl border-white/10">
-                            <p className="text-[10px] font-bold uppercase text-white/40 mb-1">Tiempo est.</p>
-                            <p className="text-2xl font-black text-white">~{Math.floor(booking.durationSec / 60)} min</p>
+                         <div className="glass p-6 rounded-[2rem] border-white/10 text-center space-y-1">
+                            <p className="text-[10px] font-black uppercase text-white/30 tracking-widest">Sesión de</p>
+                            <p className="text-4xl font-black text-white">{Math.floor(booking.durationSec / 60)}<span className="text-xl opacity-40">min</span></p>
                          </div>
                       </div>
 
-                      <div className="p-4 bg-white/5 rounded-2xl border border-white/10 flex items-center gap-3 text-left">
-                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                         <p className="text-xs text-white/60 font-medium">No cierres esta pestaña. La llamada comenzará automáticamente cuando sea tu turno.</p>
+                      <div className="p-5 bg-white/5 rounded-3xl border border-white/10 flex items-center gap-4 text-left">
+                         <div className="shrink-0 w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center">
+                            <Users className="w-5 h-5 text-violet-400" />
+                         </div>
+                         <p className="text-xs text-white/50 font-bold leading-relaxed">No cierres esta pestaña. El encuentro comenzará automáticamente en cuanto el talento te llame.</p>
                       </div>
-                   </div>
-
-                   {/* Self preview overlay in waiting room */}
-                   <div className="absolute bottom-10 right-10 w-48 h-64 bg-black rounded-2xl border-2 border-white/10 overflow-hidden shadow-2xl">
-                      <video 
-                        ref={videoRef}
-                        autoPlay 
-                        muted 
-                        playsInline 
-                        className="w-full h-full object-cover scale-x-[-1] opacity-70"
-                      />
-                      <div className="absolute top-3 left-3 bg-black/40 backdrop-blur px-2 py-1 rounded text-[10px] font-bold uppercase text-white/80">Vista previa</div>
                    </div>
                 </div>
               ) : (
-                <div className="relative w-full h-full bg-black flex items-center justify-center shadow-inner">
+                <div className="relative w-full h-full bg-black flex items-center justify-center">
                   {remoteStream ? (
                     <video 
                       ref={remoteVideoRef}
@@ -465,92 +475,71 @@ export default function VideoCallRoom() {
                       className="w-full h-full object-cover max-h-screen"
                     />
                   ) : (
-                    <>
-                      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none"></div>
-                      {isEstablishingConnection ? (
-                        <div className="flex flex-col items-center gap-4 text-white">
-                          <Loader2 className="w-12 h-12 animate-spin text-violet-500" />
-                          <p className="text-lg font-medium">Finalizando conexión...</p>
+                    <div className="flex flex-col items-center gap-8 text-white text-center px-8">
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-violet-600/20 rounded-full animate-ping scale-150" />
+                          {booking.talent?.avatarUrl ? (
+                            <img 
+                              src={booking.talent?.avatarUrl} 
+                              className="relative w-40 h-40 rounded-full border-4 border-violet-500/30 object-cover shadow-2xl"
+                              alt="Talent"
+                            />
+                          ) : (
+                            <div className="relative w-40 h-40 rounded-full bg-violet-900/40 border-4 border-violet-500/30 flex items-center justify-center text-6xl font-black">
+                              {(booking.talent?.stageName || booking.talent?.name || "T").slice(0, 2)}
+                            </div>
+                          )}
                         </div>
-                      ) : (
-                        user?.role?.toUpperCase() === "TALENT" ? (
-                          <div className="flex flex-col items-center gap-6 text-white text-center">
-                              <div className="relative">
-                                <div className="absolute inset-0 bg-violet-600/20 rounded-full animate-ping scale-150" />
-                                <div className="relative bg-violet-600/30 p-8 rounded-full border border-violet-500/30">
-                                  <Users className="w-16 h-16 text-violet-400" />
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <h3 className="text-2xl font-bold">Esperando al usuario...</h3>
-                                <p className="text-white/40 italic text-sm">La sesión comenzará automáticamente cuando el fan se conecte.</p>
-                              </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center gap-6 text-white text-center">
-                              <div className="relative">
-                                <div className="absolute inset-0 bg-violet-600/20 rounded-full animate-ping scale-150" />
-                                {booking.talent?.avatarUrl || booking.talent?.avatar_url ? (
-                                  <img 
-                                    src={booking.talent?.avatarUrl || booking.talent?.avatar_url} 
-                                    className="relative w-32 h-32 rounded-full border-4 border-violet-500/30 object-cover"
-                                    alt="Remote talent"
-                                  />
-                                ) : (
-                                  <div className="relative w-32 h-32 rounded-full bg-violet-900/40 border-4 border-violet-500/30 flex items-center justify-center text-5xl font-black">
-                                    {(booking.talent?.stageName || booking.talent?.name || "T").slice(0, 2)}
-                                  </div>
-                                )}
-                              </div>
-                              <div className="space-y-2">
-                                <h3 className="text-2xl font-bold">Esperando a {booking.talent?.stageName || booking.talent?.name}...</h3>
-                                <p className="text-white/40 italic text-sm">El talento se unirá en breve. Mantené esta pestaña abierta.</p>
-                              </div>
-                          </div>
-                        )
-                      )}
-                    </>
+                        <div className="space-y-3">
+                          <h3 className="text-3xl font-black uppercase tracking-tighter">Estableciendo Llamada</h3>
+                          <p className="text-violet-300/40 font-bold text-sm">El talento se está uniendo. Preparate para comenzar.</p>
+                        </div>
+                    </div>
                   )}
-                  <div className="absolute bottom-32 left-8 bg-black/50 backdrop-blur px-3 py-1 rounded-lg text-white/90 text-sm flex items-center gap-2 border border-white/10">
-                    <Mic className="w-3 h-3 text-green-400" />
-                    {user?.role?.toUpperCase() === "TALENT" ? "Fan" : (booking.talent?.stageName || booking.talent?.stage_name)}
+                  
+                  {/* Remote identity tag */}
+                  <div className="absolute bottom-32 left-8 bg-black/60 backdrop-blur-xl px-4 py-2 rounded-2xl text-white font-black text-[10px] uppercase tracking-widest flex items-center gap-3 border border-white/10 shadow-2xl">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                    {booking.talent?.stageName || booking.talent?.name}
                   </div>
                 </div>
               )}
             </div>
 
-            {/* PiP (Local user view) - Draggable */}
-            <motion.div 
-              drag
-              dragConstraints={{ left: -300, right: 300, top: -500, bottom: 300 }}
-              dragElastic={0.1}
-              whileDrag={{ scale: 1.05, cursor: "grabbing" }}
-              className="absolute bottom-32 right-6 sm:bottom-28 sm:right-8 w-32 h-44 sm:w-44 sm:h-64 bg-gray-900 rounded-xl overflow-hidden shadow-2xl border-2 border-white/10 z-10 group touch-none"
-            >
-              {camOff || !mediaStream ? (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-gray-950">
-                  <div className="bg-white/10 p-3 rounded-full mb-2">
-                    <VideoOff className="w-6 h-6 text-white/50" />
+            {/* PiP (Local user view) - Only visible when NOT in waiting queue */}
+            {booking.status === "IN_PROGRESS" && (
+              <motion.div 
+                drag
+                dragConstraints={{ left: -300, right: 300, top: -500, bottom: 300 }}
+                dragElastic={0.1}
+                whileDrag={{ scale: 1.05, cursor: "grabbing" }}
+                className="absolute bottom-32 right-6 sm:bottom-28 sm:right-8 w-32 h-44 sm:w-44 sm:h-64 bg-gray-900 rounded-[2rem] overflow-hidden shadow-2xl border-2 border-white/10 z-10 group touch-none"
+              >
+                {camOff || !mediaStream ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gray-950">
+                    <div className="bg-white/10 p-3 rounded-full mb-2">
+                      <VideoOff className="w-6 h-6 text-white/50" />
+                    </div>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-white/30 text-center px-4">
+                      Cámara apagada
+                    </p>
                   </div>
-                  <p className="text-[10px] text-white/40 uppercase tracking-widest text-center px-2">
-                    {!mediaStream ? "Sin cámara" : "Cámara apagada"}
-                  </p>
-                </div>
-              ) : (
-                <div className="w-full h-full bg-black relative pointer-events-none">
-                  <video 
-                    ref={videoRef}
-                    autoPlay 
-                    muted 
-                    playsInline 
-                    className="w-full h-full object-cover scale-x-[-1]"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 sm:p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <p className="text-xs text-white font-medium">Tú ({user?.role?.toUpperCase() === "TALENT" ? "Talento" : "Fan"})</p>
+                ) : (
+                  <div className="w-full h-full bg-black relative pointer-events-none">
+                    <video 
+                      ref={videoRef}
+                      autoPlay 
+                      muted 
+                      playsInline 
+                      className="w-full h-full object-cover scale-x-[-1]"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-white">Tú</p>
+                    </div>
                   </div>
-                </div>
-              )}
-            </motion.div>
+                )}
+              </motion.div>
+            )}
           </div>
 
           {/* Controls - Fixed height at bottom */}
