@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useHydratedAuth } from "@/store/auth";
 import { useRouter } from "next/navigation";
-import { 
-  Star, Info, DollarSign, Clock, Save, Loader2, 
+import {
+  Star, Info, DollarSign, Clock, Save, Loader2,
   ChevronRight, CheckCircle2, LayoutDashboard, Calendar, User, Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 export default function TalentEditPage() {
   const { user, token, isAuthenticated, isHydrated } = useHydratedAuth();
   const router = useRouter();
-  
+
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [success, setSuccess] = useState(false);
@@ -68,7 +68,7 @@ export default function TalentEditPage() {
     e.preventDefault();
     setLoading(true);
     setSuccess(false);
-    
+
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/talents/me/update`, {
         method: "PUT",
@@ -92,7 +92,7 @@ export default function TalentEditPage() {
 
   const sidebarLinks = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/talent/dashboard" },
-    { id: "edit", label: "Configurar Canal 📡", icon: Star, href: "/talent/edit", active: true },
+    { id: "edit", label: "Configurar Canal", icon: Star, href: "/talent/edit", active: true },
     { id: "settings", label: "Cuenta", icon: User, href: "/profile" },
   ];
 
@@ -142,10 +142,10 @@ export default function TalentEditPage() {
   return (
     <div className="min-h-screen">
       <Navbar />
-      
+
       <div className="pt-24 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row gap-8">
-          
+
           {/* Talent Sidebar */}
           <aside className="w-full md:w-64 space-y-4">
             <div className="p-4 rounded-3xl glass-card border border-white/10 mb-6">
@@ -157,8 +157,8 @@ export default function TalentEditPage() {
                     onClick={() => router.push(link.href)}
                     className={cn(
                       "w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all group",
-                      link.active 
-                        ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20" 
+                      link.active
+                        ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20"
                         : "text-muted-foreground hover:text-white hover:bg-white/5"
                     )}
                   >
@@ -174,11 +174,11 @@ export default function TalentEditPage() {
           <main className="flex-1">
             <div className="p-8 md:p-10 rounded-[2.5rem] glass-card border border-white/10 relative overflow-hidden">
               <div className="absolute -top-24 -right-24 w-64 h-64 bg-violet-600/10 rounded-full blur-[100px]" />
-              
+
               <div className="relative space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h1 className="text-3xl font-bold text-white">Configurar Canal 📡</h1>
+                    <h1 className="text-3xl font-bold text-white">Configurar Canal</h1>
                     <p className="text-muted-foreground mt-1">Configurá cómo te ven tus fans durante tus vivos.</p>
                   </div>
                   <div className="p-3 rounded-2xl bg-violet-500/10 border border-violet-500/20">
@@ -191,9 +191,9 @@ export default function TalentEditPage() {
                     {/* Stage Name */}
                     <div className="space-y-2">
                       <Label className="text-gray-400 ml-1">Nombre Artístico</Label>
-                      <Input 
+                      <Input
                         value={formData.stageName}
-                        onChange={(e) => setFormData({...formData, stageName: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, stageName: e.target.value })}
                         className="h-12 bg-white/5 border-white/10 rounded-2xl focus:ring-violet-500"
                         placeholder="Ej: Messi, Bizarrap..."
                       />
@@ -202,9 +202,9 @@ export default function TalentEditPage() {
                     {/* Category */}
                     <div className="space-y-2">
                       <Label className="text-gray-400 ml-1">Categoría</Label>
-                      <Input 
+                      <Input
                         value={formData.category}
-                        onChange={(e) => setFormData({...formData, category: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                         className="h-12 bg-white/5 border-white/10 rounded-2xl focus:ring-violet-500"
                         placeholder="Ej: Deportes, Música, Cine..."
                       />
@@ -214,9 +214,9 @@ export default function TalentEditPage() {
                   {/* Bio */}
                   <div className="space-y-2">
                     <Label className="text-gray-400 ml-1">Biografía</Label>
-                    <Textarea 
+                    <Textarea
                       value={formData.bio}
-                      onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                       className="min-h-[120px] bg-white/5 border-white/10 rounded-2xl focus:ring-violet-500 py-4"
                       placeholder="Contale a tus fans quién sos y qué pueden esperar de tu sesión..."
                     />
@@ -230,10 +230,10 @@ export default function TalentEditPage() {
                       <Label className="text-gray-400 ml-1 flex items-center gap-2">
                         <DollarSign className="w-3 h-3" /> Precio por Sesión (USD)
                       </Label>
-                      <Input 
+                      <Input
                         type="number"
                         value={formData.priceUsd}
-                        onChange={(e) => setFormData({...formData, priceUsd: parseFloat(e.target.value)})}
+                        onChange={(e) => setFormData({ ...formData, priceUsd: parseFloat(e.target.value) })}
                         className="h-12 bg-white/5 border-white/10 rounded-2xl focus:ring-violet-500"
                       />
                     </div>
@@ -242,10 +242,10 @@ export default function TalentEditPage() {
                       <Label className="text-gray-400 ml-1 flex items-center gap-2">
                         <Clock className="w-3 h-3" /> Duración (Minutos)
                       </Label>
-                      <Input 
+                      <Input
                         type="number"
                         value={formData.sessionDurationMin}
-                        onChange={(e) => setFormData({...formData, sessionDurationMin: parseInt(e.target.value)})}
+                        onChange={(e) => setFormData({ ...formData, sessionDurationMin: parseInt(e.target.value) })}
                         className="h-12 bg-white/5 border-white/10 rounded-2xl focus:ring-violet-500"
                       />
                     </div>
@@ -253,8 +253,8 @@ export default function TalentEditPage() {
 
                   {/* Save Button */}
                   <div className="pt-4 flex items-center gap-6">
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={loading}
                       className={cn(
                         "h-14 px-10 rounded-2xl font-bold transition-all gap-2 shadow-2xl",
