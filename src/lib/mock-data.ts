@@ -98,9 +98,9 @@ export const MOCK_TALENTS: TalentProfile[] = [
 export const MOCK_USER: User = {
   id: "fan1",
   email: "fan@example.com",
-  role: "fan",
+  role: "USER",
   name: "Juan Pérez",
-  created_at: new Date().toISOString(),
+  createdAt: new Date().toISOString(),
 };
 
 export const MOCK_BOOKINGS: Booking[] = [
