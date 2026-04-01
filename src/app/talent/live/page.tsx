@@ -426,14 +426,15 @@ export default function TalentLiveStudio() {
                      layout
                      drag={layoutMode === "pip" && pinnedParticipant === "local"}
                      dragConstraints={videoContainerRef}
-                     dragElastic={0.1}
+                     dragElastic={0}
                      dragMomentum={false}
+                     animate={pinnedParticipant === "remote" ? { x: 0, y: 0 } : {}}
                      whileDrag={{ scale: 1.05, opacity: 0.9, zIndex: 50 }}
                      className={cn(
-                       "relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl transition-all duration-500",
+                       "relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl overflow-hidden",
                        layoutMode === "grid" 
-                         ? "w-full h-full" 
-                         : pinnedParticipant === "remote" ? "w-full h-full" : "absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-24 h-32 sm:w-40 sm:h-56 z-20 cursor-move"
+                         ? "w-full h-full transition-all duration-500" 
+                         : pinnedParticipant === "remote" ? "w-full h-full transition-all duration-500" : "absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-24 h-32 sm:w-40 sm:h-56 z-20 cursor-move"
                      )}
                      onClick={() => layoutMode === "pip" && pinnedParticipant === "local" && setPinnedParticipant("remote")}
                    >
@@ -460,14 +461,15 @@ export default function TalentLiveStudio() {
                      layout
                      drag={layoutMode === "pip" && pinnedParticipant === "remote"}
                      dragConstraints={videoContainerRef}
-                     dragElastic={0.1}
+                     dragElastic={0}
                      dragMomentum={false}
+                     animate={pinnedParticipant === "local" ? { x: 0, y: 0 } : {}}
                      whileDrag={{ scale: 1.05, opacity: 0.9, zIndex: 50 }}
                      className={cn(
-                       "relative rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl transition-all duration-500",
+                       "relative rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl overflow-hidden",
                        layoutMode === "grid" 
-                         ? "w-full h-full" 
-                         : pinnedParticipant === "local" ? "w-full h-full" : "absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-24 h-32 sm:w-40 sm:h-56 z-20 cursor-move"
+                         ? "w-full h-full transition-all duration-500" 
+                         : pinnedParticipant === "local" ? "w-full h-full transition-all duration-500" : "absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-24 h-32 sm:w-40 sm:h-56 z-20 cursor-move"
                      )}
                      onClick={() => layoutMode === "pip" && pinnedParticipant === "remote" && setPinnedParticipant("local")}
                    >
