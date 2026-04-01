@@ -6,7 +6,7 @@ import {
   Mic, MicOff, Video as VideoIcon, VideoOff, 
   PhoneOff, Users, Settings, Send, MessageSquare, 
   ChevronRight, Loader2, X, Play, Zap, LogOut,
-  ChevronDown, ExternalLink, Activity
+  ChevronDown, ExternalLink, Activity, LayoutGrid, Maximize2, User, UserPlus
 } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import { toast } from "sonner";
@@ -37,7 +37,16 @@ export default function TalentLiveStudio() {
   const [isStopping, setIsStopping] = useState(false);
   const [isCalling, setIsCalling] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
-  const [sidebarMode, setSidebarMode] = useState<"queue" | "chat" | "settings">("queue");
+  const [sidebarMode, setSidebarMode] = useState<"queue" | "chat" | "settings" | null>(null);
+  const [layoutMode, setLayoutMode] = useState<"pip" | "grid">("pip");
+  const [pinnedParticipant, setPinnedParticipant] = useState<"local" | "remote">("remote");
+  
+  // Set default sidebar on desktop
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      setSidebarMode("queue");
+    }
+  }, []);
   
   // Queue & Active Booking
   const [queue, setQueue] = useState<any[]>([]);
@@ -56,6 +65,49 @@ export default function TalentLiveStudio() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const peerRef = useRef<any>(null);
+  const videoContainerRef = useRef(null);
+
+  // Sounds
+  const playSound = (type: 'joined' | 'queue') => {
+    const sounds = {
+      joined: 'https://assets.mixkit.co/sfx/preview/mixkit-message-pop-alert-2354.mp3',
+      queue: 'https://assets.mixkit.co/sfx/preview/mixkit-software-interface-back-light-2516.mp3'
+    };
+    const audio = new Audio(sounds[type]);
+    audio.volume = 0.5;
+    audio.play().catch(() => {
+      // Browsers may block auto-play without user interaction
+      console.log("Audio play blocked or failed");
+    });
+  };
+
+  // Permanent Studio Socket (for queue updates and notifications)
+  useEffect(() => {
+    if (!isAuthenticated || !user?.id) return;
+
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000";
+    const studioSocket = io(socketUrl);
+    
+    studioSocket.on("connect", () => {
+      studioSocket.emit("join-talent-updates", user.id);
+    });
+
+    studioSocket.on("new-booking", (booking) => {
+      playSound('queue');
+      toast.success(`¡Nueva persona en cola: ${booking.fan?.name || 'Alguien'}!`, {
+        description: "Se ha agregado una nueva reserva a tu lista de espera."
+      });
+      // Smart update queue to avoid waiting for next poll
+      setQueue(prev => {
+        if (prev.find(b => b.id === booking.id)) return prev;
+        return [...prev, booking];
+      });
+    });
+
+    return () => {
+      studioSocket.disconnect();
+    };
+  }, [isAuthenticated, user?.id]);
 
   // Poll queue & check live status
   useEffect(() => {
@@ -147,6 +199,8 @@ export default function TalentLiveStudio() {
       socket.emit("join-room", activeBooking.id);
 
       socket.on("user-joined", ({ from }) => {
+        playSound('joined');
+        toast.info("¡El fan se ha unido!", { description: "La sesión de video está lista para comenzar." });
         const peer = new Peer({
           initiator: true, trickle: false, stream: mediaStream
         });
@@ -346,39 +400,69 @@ export default function TalentLiveStudio() {
       <div className="flex-1 flex overflow-hidden relative">
         
         {/* VIDEO SECTION */}
-        <div className="flex-1 min-w-0 relative flex flex-col bg-black overflow-hidden group">
+        <div ref={videoContainerRef} className="flex-1 min-w-0 relative flex flex-col bg-black overflow-hidden group">
           <div className="flex-1 min-h-0 relative flex items-center justify-center p-2 sm:p-4">
             <AnimatePresence mode="wait">
               {activeBooking ? (
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }} className="w-full h-full relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/5">
-                   {remoteStream ? (
-                     <div className="w-full h-full relative group">
-                        {timeLeft !== null && (
-                          <div className={cn("absolute top-4 right-4 sm:top-6 sm:right-6 z-30 px-4 py-2 sm:px-6 sm:py-3 rounded-2xl font-black text-xl sm:text-2xl font-mono border backdrop-blur-xl", timeLeft < 30 ? "bg-red-500 text-white border-red-400 animate-pulse" : "bg-black/60 text-white border-white/10")}>
-                            {formatTime(timeLeft)}
-                          </div>
-                        )}
-                        <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-30 p-2 sm:p-2.5 glass-card border-white/10 rounded-2xl flex items-center gap-3">
-                           <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center font-black text-xs sm:text-sm">{activeBooking.fan?.name?.slice(0, 2).toUpperCase()}</div>
-                           <div className="pr-3">
-                              <p className="text-[8px] sm:text-[9px] font-black uppercase text-white/40">Fan en línea</p>
-                              <p className="text-sm sm:text-[15px] font-black text-white">{activeBooking.fan?.name}</p>
-                           </div>
-                        </div>
+                <div className={cn(
+                  "w-full h-full relative transition-all duration-700",
+                  layoutMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-4 p-2 sm:p-4" : "block"
+                )}>
+                   {/* REMOTE VIDEO CONTAINER */}
+                   <motion.div 
+                     layout
+                     className={cn(
+                       "relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl transition-all duration-500",
+                       layoutMode === "grid" 
+                         ? "w-full h-full" 
+                         : pinnedParticipant === "remote" ? "w-full h-full" : "absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-24 h-32 sm:w-40 sm:h-56 z-20 cursor-move"
+                     )}
+                     onClick={() => layoutMode === "pip" && pinnedParticipant === "local" && setPinnedParticipant("remote")}
+                   >
+                      <div className="absolute top-4 left-4 z-30 flex items-center gap-2">
+                         <div className="glass-card px-3 py-1.5 rounded-xl flex items-center gap-2 border-white/5">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                            <span className="text-[10px] font-black uppercase text-white/60 truncate max-w-[100px]">{activeBooking.fan?.name}</span>
+                         </div>
+                         <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); setPinnedParticipant("remote"); }} className={cn("w-8 h-8 rounded-lg", pinnedParticipant === "remote" ? "bg-violet-600 text-white" : "bg-black/40 text-white/40")}>
+                           <Maximize2 className="w-4 h-4" />
+                         </Button>
+                      </div>
+                      {remoteStream ? (
                         <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
-                     </div>
-                   ) : (
-                    <div className="w-full h-full bg-[#0a0a0c] flex flex-col items-center justify-center gap-6 p-6">
-                       <div className="relative">
-                          <div className="absolute inset-0 bg-violet-600/30 rounded-full animate-ping" />
-                          <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-violet-500/30 overflow-hidden flex items-center justify-center bg-violet-900/40">
-                             <span className="text-3xl sm:text-4xl font-black">{activeBooking.fan?.name?.slice(0, 2).toUpperCase()}</span>
-                          </div>
-                       </div>
-                       <h2 className="text-xl sm:text-2xl font-black animate-pulse">Conectando...</h2>
-                    </div>
-                  )}
-                </motion.div>
+                      ) : (
+                        <div className="w-full h-full bg-[#0a0a0c] flex items-center justify-center">
+                           <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+                        </div>
+                      )}
+                   </motion.div>
+
+                   {/* LOCAL VIDEO CONTAINER */}
+                   <motion.div 
+                     layout
+                     drag={layoutMode === "pip"}
+                     dragConstraints={videoContainerRef}
+                     dragElastic={0.1}
+                     dragMomentum={false}
+                     className={cn(
+                       "relative rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl transition-all duration-500",
+                       layoutMode === "grid" 
+                         ? "w-full h-full" 
+                         : pinnedParticipant === "local" ? "w-full h-full" : "absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-24 h-32 sm:w-40 sm:h-56 z-20 cursor-move"
+                     )}
+                     onClick={() => layoutMode === "pip" && pinnedParticipant === "remote" && setPinnedParticipant("local")}
+                   >
+                      <div className="absolute top-4 left-4 z-30 flex items-center gap-2">
+                         <div className="glass-card px-3 py-1.5 rounded-xl border-white/5">
+                            <span className="text-[10px] font-black uppercase text-white/40">Tú (Pro)</span>
+                         </div>
+                         <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); setPinnedParticipant("local"); }} className={cn("w-8 h-8 rounded-lg", pinnedParticipant === "local" ? "bg-violet-600 text-white" : "bg-black/40 text-white/40")}>
+                           <Maximize2 className="w-4 h-4" />
+                         </Button>
+                      </div>
+                      <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover scale-x-[-1]" />
+                   </motion.div>
+                </div>
               ) : (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full h-full relative flex items-center justify-center overflow-hidden">
                   {camOff ? (
@@ -394,11 +478,36 @@ export default function TalentLiveStudio() {
             </AnimatePresence>
 
             {activeBooking && (
-                <div className="absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-32 h-44 sm:w-40 sm:h-56 bg-black rounded-2xl border-2 border-white/10 overflow-hidden shadow-2xl z-20">
+                <motion.div 
+                   drag 
+                   dragConstraints={videoContainerRef}
+                   dragElastic={0.1}
+                   dragMomentum={false}
+                   whileDrag={{ scale: 1.05, opacity: 0.9 }}
+                   className="absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-24 h-32 sm:w-40 sm:h-56 bg-black rounded-2xl border-2 border-white/10 overflow-hidden shadow-2xl z-20 cursor-move touch-none"
+                >
                    <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover scale-x-[-1]" />
-                </div>
+                </motion.div>
             )}
           </div>
+
+          {/* Mini-Queue for Mobile (Horizontal List) */}
+          {!activeBooking && queue.length > 0 && (
+            <div className="absolute bottom-28 left-0 right-0 px-6 lg:hidden z-40 animate-in slide-in-from-bottom duration-700">
+               <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Próximos en cola</span>
+                  <span className="text-[10px] font-bold text-violet-400">{queue.length} personas</span>
+               </div>
+               <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 scroll-smooth">
+                  {queue.map((item, i) => (
+                    <div key={item.id} className="relative shrink-0">
+                       <img src={item.fan?.avatarUrl} className="w-12 h-12 rounded-xl object-cover border border-white/10" alt="" />
+                       <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-violet-600 rounded-full flex items-center justify-center text-[8px] font-black border border-black shadow-lg">#{i+1}</div>
+                    </div>
+                  ))}
+               </div>
+            </div>
+          )}
 
           {/* Controls */}
           <div className="h-24 sm:h-28 flex items-center justify-center gap-3 sm:gap-6 px-4 bg-[#08080a] border-t border-white/5 shrink-0 z-50">
@@ -413,13 +522,38 @@ export default function TalentLiveStudio() {
             
             <div className="w-[1px] h-10 bg-white/10 mx-1 sm:mx-2" />
 
+            <div className="hidden md:flex items-center gap-2">
+               <Button 
+                 size="icon" 
+                 variant="ghost" 
+                 onClick={() => setLayoutMode("pip")} 
+                 className={cn("w-12 h-12 rounded-2xl transition-all", layoutMode === "pip" ? "bg-violet-600 text-white" : "bg-white/5 text-white/40")}
+               >
+                 <Maximize2 className="w-5 h-5" />
+               </Button>
+               <Button 
+                 size="icon" 
+                 variant="ghost" 
+                 onClick={() => setLayoutMode("grid")} 
+                 className={cn("w-12 h-12 rounded-2xl transition-all", layoutMode === "grid" ? "bg-violet-600 text-white" : "bg-white/5 text-white/40")}
+               >
+                 <LayoutGrid className="w-5 h-5" />
+               </Button>
+            </div>
+
+            <div className="hidden md:block w-[1px] h-10 bg-white/10 mx-2" />
+
             {!activeBooking ? (
-               <Button onClick={handleCallNext} disabled={queue.length === 0 || isCalling} className="flex-1 sm:flex-none h-14 sm:h-16 px-6 sm:px-10 rounded-2xl bg-violet-600 hover:bg-violet-500 text-white font-black text-base sm:text-xl gap-2 active:scale-95">
+               <Button 
+                 onClick={handleCallNext} 
+                 disabled={queue.length === 0 || isCalling} 
+                 className="w-14 h-14 sm:w-auto sm:h-16 px-0 sm:px-10 rounded-2xl bg-violet-600 hover:bg-violet-500 text-white font-black text-base sm:text-xl gap-2 active:scale-95 shadow-lg shadow-violet-600/20"
+               >
                  {isCalling ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5 fill-white" />}
-                 <span className="truncate">Siguiente</span>
+                 <span className="hidden sm:inline">Siguiente</span>
                </Button>
             ) : (
-                <div className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-violet-400 bg-violet-400/10 px-4 sm:px-8 py-3 rounded-2xl border border-violet-400/20 font-black uppercase text-[10px] sm:text-sm tracking-[0.2em] animate-pulse">
+                <div className="flex items-center justify-center gap-2 text-violet-400 bg-violet-400/10 px-4 sm:px-8 py-3 rounded-2xl border border-violet-400/20 font-black uppercase text-[10px] sm:text-sm tracking-[0.2em] animate-pulse">
                    <Users className="w-4 h-4 sm:w-5 sm:h-5" /> EN CURSO
                 </div>
              )}
@@ -427,10 +561,10 @@ export default function TalentLiveStudio() {
             <div className="w-[1px] h-10 bg-white/10 mx-1 sm:mx-2" />
 
             <div className="flex items-center gap-2 sm:gap-3">
-              <Button size="icon" variant="ghost" onClick={() => setSidebarMode("chat")} className={cn("w-12 h-12 sm:w-14 sm:h-14 rounded-2xl", sidebarMode === "chat" ? "bg-violet-600 text-white shadow-lg" : "bg-white/5 text-white/60")}>
+              <Button size="icon" variant="ghost" onClick={() => setSidebarMode(prev => prev === "chat" ? null : "chat")} className={cn("w-12 h-12 sm:w-14 sm:h-14 rounded-2xl transition-all", sidebarMode === "chat" ? "bg-violet-600 text-white shadow-lg scale-110" : "bg-white/5 text-white/60")}>
                  <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />
               </Button>
-              <Button size="icon" variant="ghost" onClick={() => setSidebarMode("queue")} className={cn("w-12 h-12 sm:w-14 sm:h-14 rounded-2xl lg:hidden", sidebarMode === "queue" ? "bg-violet-600 text-white shadow-lg" : "bg-white/5 text-white/60")}>
+              <Button size="icon" variant="ghost" onClick={() => setSidebarMode(prev => prev === "queue" ? null : "queue")} className={cn("w-12 h-12 sm:w-14 sm:h-14 rounded-2xl lg:hidden transition-all", sidebarMode === "queue" ? "bg-violet-600 text-white shadow-lg scale-110" : "bg-white/5 text-white/60")}>
                  <Users className="w-5 h-5 sm:w-6 sm:h-6" />
               </Button>
             </div>
@@ -439,15 +573,16 @@ export default function TalentLiveStudio() {
 
         {/* SIDEBAR */}
         <div className={cn(
-          "fixed inset-0 z-[100] bg-[#0a0a0c] lg:relative lg:inset-auto lg:w-80 lg:flex lg:border-l lg:border-white/5 flex flex-col shadow-2xl animate-in slide-in-from-right duration-300 overflow-hidden",
-          sidebarMode === "queue" || sidebarMode === "chat" ? "flex" : "hidden lg:flex"
+          "fixed inset-0 z-[100] bg-[#0a0a0c]/95 backdrop-blur-3xl lg:relative lg:inset-auto lg:w-96 lg:flex lg:border-l lg:border-white/5 flex flex-col shadow-2xl transition-all duration-500 ease-in-out overflow-hidden",
+          sidebarMode ? "translate-y-0 opacity-100" : "translate-y-full opacity-0 pointer-events-none lg:translate-y-0 lg:opacity-100 lg:pointer-events-auto",
+          !sidebarMode && "hidden lg:flex"
         )}>
           <div className="p-6 border-b border-white/5 flex items-center justify-between bg-black/60 shrink-0">
              <h3 className="text-sm font-black uppercase tracking-widest text-white/60">
                 {sidebarMode === "queue" && "Cola de espera"}
                 {sidebarMode === "chat" && "Chat en vivo"}
              </h3>
-             <Button variant="ghost" size="icon" onClick={() => setSidebarMode("queue")} className="w-10 h-10 rounded-xl hover:bg-white/10 lg:hidden">
+             <Button variant="ghost" size="icon" onClick={() => setSidebarMode(null)} className="w-10 h-10 rounded-xl hover:bg-white/10 lg:hidden">
                 <X className="w-6 h-6 text-white/50" />
              </Button>
           </div>
