@@ -47,7 +47,14 @@ export function TalentCard({ talent }: TalentCardProps) {
           {talent.rating && (
             <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/40 rounded-full px-2 py-1">
               <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-              <span className="text-xs font-semibold text-white">{talent.rating}</span>
+              <span className="text-xs font-semibold text-white">{talent.rating || 4.9}</span>
+            </div>
+          )}
+          {/* Live indicator */}
+          {talent.isLive && (
+            <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-red-500/90 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg animate-pulse">
+              <div className="w-1.5 h-1.5 bg-white rounded-full" />
+              En vivo
             </div>
           )}
         </div>
@@ -84,7 +91,7 @@ export function TalentCard({ talent }: TalentCardProps) {
             <div
               className={cn(buttonVariants({ size: "sm" }), "btn-gradient text-white border-0 text-xs inline-flex")}
             >
-              Reservar
+              {talent.isLive ? "En vivo" : "Ver perfil"}
             </div>
           </div>
         </div>

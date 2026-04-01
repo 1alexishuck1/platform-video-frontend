@@ -11,12 +11,28 @@ function Sheet({ ...props }: SheetPrimitive.Root.Props) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
 }
 
-function SheetTrigger({ ...props }: SheetPrimitive.Trigger.Props & { asChild?: boolean }) {
-  return <SheetPrimitive.Trigger data-slot="sheet-trigger" {...props} />
+function SheetTrigger({ children, render, ...props }: SheetPrimitive.Trigger.Props) {
+  return (
+    <SheetPrimitive.Trigger 
+      data-slot="sheet-trigger" 
+      render={render}
+      {...props} 
+    >
+      {children}
+    </SheetPrimitive.Trigger>
+  )
 }
 
-function SheetClose({ ...props }: SheetPrimitive.Close.Props & { asChild?: boolean }) {
-  return <SheetPrimitive.Close data-slot="sheet-close" {...props} />
+function SheetClose({ children, render, ...props }: SheetPrimitive.Close.Props) {
+  return (
+    <SheetPrimitive.Close 
+      data-slot="sheet-close" 
+      render={render}
+      {...props} 
+    >
+      {children}
+    </SheetPrimitive.Close>
+  )
 }
 
 function SheetPortal({ ...props }: SheetPrimitive.Portal.Props) {

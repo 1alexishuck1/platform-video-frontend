@@ -32,7 +32,8 @@ export default function TalentEditPage() {
   });
 
   useEffect(() => {
-    if (isHydrated && (!isAuthenticated || user?.role !== "talent")) {
+    const isTalent = (user?.role || "").toLowerCase() === "talent";
+    if (isHydrated && (!isAuthenticated || !isTalent)) {
       router.push("/");
       return;
     }
@@ -92,15 +93,49 @@ export default function TalentEditPage() {
 
   const sidebarLinks = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/talent/dashboard" },
-    { id: "agenda", label: "Mi Agenda", icon: Calendar, href: "/talent/agenda" },
-    { id: "edit", label: "Perfil Público", icon: Star, href: "/talent/edit", active: true },
+    { id: "edit", label: "Perfil público", icon: Star, href: "/talent/edit", active: true },
     { id: "settings", label: "Cuenta", icon: User, href: "/profile" },
   ];
 
   if (!isHydrated || fetching) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="pt-24 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-8">
+            <aside className="w-full md:w-64 space-y-4">
+              <div className="p-4 rounded-3xl glass-card border border-white/10">
+                <div className="h-3 w-20 bg-white/5 animate-pulse rounded-full mb-6" />
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="h-12 w-full bg-white/5 animate-pulse rounded-2xl mb-2" />
+                ))}
+              </div>
+            </aside>
+            <main className="flex-1">
+              <div className="p-8 md:p-10 rounded-[2.5rem] glass-card border border-white/10 min-h-[500px]">
+                <div className="flex justify-between items-center mb-10">
+                  <div className="space-y-4 w-1/2">
+                    <div className="h-8 w-full bg-white/5 animate-pulse rounded-full" />
+                    <div className="h-4 w-3/4 bg-white/5 animate-pulse rounded-full" />
+                  </div>
+                  <div className="w-12 h-12 bg-white/5 animate-pulse rounded-2xl" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  {[1, 2].map(i => (
+                    <div key={i} className="space-y-2">
+                      <div className="h-3 w-24 bg-white/5 animate-pulse rounded" />
+                      <div className="h-12 w-full bg-white/5 animate-pulse rounded-2xl" />
+                    </div>
+                  ))}
+                </div>
+                <div className="space-y-2 mb-8">
+                  <div className="h-3 w-20 bg-white/5 animate-pulse rounded" />
+                  <div className="h-32 w-full bg-white/5 animate-pulse rounded-2xl" />
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
       </div>
     );
   }

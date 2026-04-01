@@ -1,31 +1,30 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { format, addDays } from "date-fns";
-import { es } from "date-fns/locale";
-import { Calendar, Clock, Star, Zap, Video, ShieldCheck, ChevronLeft, Loader2 } from "lucide-react";
+import { 
+  Clock, Star, Zap, Video, ShieldCheck, 
+  ChevronLeft, Loader2, Users, ArrowUpRight 
+} from "lucide-react";
 
 import { Navbar } from "@/components/layout/Navbar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
 import { useAuthStore, useHydratedAuth } from "@/store/auth";
 import { apiFetch } from "@/lib/api";
 import { TalentProfile } from "@/types";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function TalentProfilePage() {
   const { id } = useParams();
   const router = useRouter();
   const { user, isAuthenticated, isHydrated } = useHydratedAuth();
   
+  // This profile page allows fans to join the virtual queue or book future slots. (Live Profile Feature)
   const [talent, setTalent] = useState<TalentProfile | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [isBooking, setIsBooking] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
-  const [showAllSlots, setShowAllSlots] = useState(false);
 
   useEffect(() => {
     const loadTalent = async () => {
@@ -41,29 +40,36 @@ export default function TalentProfilePage() {
     loadTalent();
   }, [id]);
 
-  useEffect(() => {
-    const fetchSlots = async () => {
-      if (!selectedDate || !id) return;
-      setIsLoadingSlots(true);
-      setSelectedTime(null);
-      try {
-        const dateStr = format(selectedDate, "yyyy-MM-dd");
-        const data = await apiFetch(`/bookings/available-slots?talentId=${id}&date=${dateStr}`);
-        setAvailableSlots(data.slots || []);
-      } catch (err) {
-        console.error("Error fetching slots", err);
-        setAvailableSlots([]);
-      } finally {
-        setIsLoadingSlots(false);
-      }
-    };
-    fetchSlots();
-  }, [selectedDate, id]);
+
 
   if (isLoading || !isHydrated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+      <div className="min-h-screen pb-20">
+        <Navbar />
+        <div className="h-48 md:h-64 bg-violet-950/20 w-full" />
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 md:-mt-24 relative z-10">
+          <div className="flex flex-col md:flex-row gap-8">
+            <div className="flex-1 space-y-8">
+              <div className="glass rounded-3xl p-5 md:p-8 flex flex-col sm:flex-row items-center sm:items-end gap-5 md:gap-6">
+                <Skeleton className="w-28 h-28 md:w-40 md:h-40 rounded-full" />
+                <div className="flex-1 space-y-4">
+                  <Skeleton className="h-10 w-48 rounded-xl" />
+                  <div className="flex gap-4">
+                    <Skeleton className="h-8 w-24 rounded-full" />
+                    <Skeleton className="h-8 w-32 rounded-full" />
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <Skeleton className="h-8 w-40 rounded-xl" />
+                <Skeleton className="h-24 w-full rounded-2xl" />
+              </div>
+            </div>
+            <div className="w-full md:w-96 shrink-0 md:-mt-32">
+              <Skeleton className="h-96 w-full rounded-3xl shadow-2xl" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -82,10 +88,9 @@ export default function TalentProfilePage() {
   const priceUsd = talent.priceUsd || talent.price_usd;
   const durationMin = talent.sessionDurationMin || Math.floor((talent.session_duration_sec || 0) / 60);
 
-  // Generate next 7 days for the picker
-  const upcomingDays = Array.from({ length: 7 }).map((_, i) => addDays(new Date(), i));
 
-  const handleBook = async () => {
+
+  const handleJoinQueue = async () => {
     if (!isAuthenticated) {
       router.push("/login");
       return;
@@ -93,30 +98,32 @@ export default function TalentProfilePage() {
 
     setIsBooking(true);
     try {
-      // Create real booking in DB
-      await apiFetch("/bookings", {
+      const data = await apiFetch("/bookings", {
         method: "POST",
         body: JSON.stringify({
-          startsAt: selectedTime, // selectedTime is now the full ISO string
           talentId: talent!.id,
           durationMin: durationMin,
-          priceUsd: priceUsd
+          priceUsd: priceUsd,
+          startsAt: null // No startsAt means join queue
         }),
       });
-      router.push("/dashboard?success=true");
+      toast.success("¡Ya estás en la cola virtual!");
+      router.push(`/bookings/${data.booking.id}/call`);
     } catch (err: any) {
-      alert(err.message || "Error al realizar la reserva");
+      toast.error(err.message || "Error al unirse a la cola");
     } finally {
       setIsBooking(false);
     }
   };
+
+
 
   return (
     <div className="min-h-screen pb-20">
       <Navbar />
       
       {/* Cover */}
-      <div className="h-56 md:h-80 bg-gradient-to-br from-violet-900/40 via-card to-pink-900/20 w-full relative">
+      <div className="h-48 md:h-64 bg-gradient-to-br from-violet-900/40 via-card to-pink-900/20 w-full relative">
         <button 
           onClick={() => router.back()} 
           className="absolute top-20 md:top-24 left-4 sm:left-8 glass rounded-full p-2 hover:bg-white/10 transition"
@@ -126,7 +133,7 @@ export default function TalentProfilePage() {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 md:-mt-24 relative z-10">
-        <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col md:flex-row gap-8 md:-mt-32">
           
           {/* Main info */}
           <div className="flex-1">
@@ -182,138 +189,105 @@ export default function TalentProfilePage() {
           </div>
 
           {/* Booking Widget */}
-          <div className="w-full md:w-96 shrink-0 md:-mt-32">
+          <div className="w-full md:w-96 shrink-0">
             <div className="glass rounded-3xl p-6 sticky top-24 shadow-2xl border-white/10">
               <div className="flex justify-between items-start mb-6 pb-6 border-b border-white/5">
                 <div>
                   <div className="text-3xl font-bold gradient-text">${priceUsd}</div>
                   <div className="text-sm text-muted-foreground mt-1">Por {durationMin} minutos</div>
                 </div>
-                <div className="bg-violet-500/10 text-violet-400 px-3 py-1 rounded-full flex items-center gap-2 text-xs font-semibold">
-                  <Zap className="w-3 h-3" /> Disponible
-                </div>
+                {talent.isLive ? (
+                  <div className="bg-red-500/10 text-red-500 px-3 py-1 rounded-full flex items-center gap-2 text-xs font-bold animate-pulse">
+                    <div className="w-2 h-2 bg-red-500 rounded-full" /> En vivo
+                  </div>
+                ) : (
+                  <div className="bg-violet-500/10 text-violet-400 px-3 py-1 rounded-full flex items-center gap-2 text-xs font-semibold">
+                    <Zap className="w-3 h-3" /> Disponible
+                  </div>
+                )}
               </div>
 
-              {/* Fake calendar picker */}
-              <div className="space-y-4 mb-6">
-                <label className="text-sm font-semibold">1. Elige una fecha</label>
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-2 px-2 md:mx-0 md:px-0">
-                  {upcomingDays.map((date) => (
-                    <button
-                      key={date.toISOString()}
-                      onClick={() => setSelectedDate(date)}
-                      className={`flex flex-col items-center justify-center min-w-[70px] p-3 rounded-2xl border transition-all ${
-                        selectedDate === date
-                          ? "bg-violet-500/20 border-violet-500/50 text-violet-300"
-                          : "border-white/10 hover:border-white/20 text-muted-foreground"
-                      }`}
-                    >
-                      <span className="text-xs font-medium uppercase">{format(date, "EEE", { locale: es })}</span>
-                      <span className="text-xl font-bold mt-1 text-foreground">{format(date, "d")}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {selectedDate && (
-                <div className="space-y-4 mb-6 animate-in fade-in slide-in-from-top-4">
-                  <label className="text-sm font-semibold">2. Elige un horario</label>
-                  {isLoadingSlots ? (
-                    <div className="flex items-center justify-center p-8">
-                       <Loader2 className="w-5 h-5 animate-spin text-violet-500" />
-                    </div>
-                  ) : availableSlots.length === 0 ? (
-                    <p className="text-xs text-muted-foreground bg-white/5 p-4 rounded-xl border border-white/5 italic">
-                      No hay horarios disponibles para este día.
+              {talent.isLive ? (
+                <div className="space-y-6">
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-3">
+                    <p className="text-sm font-medium text-center">
+                      {stageName} está en vivo ahora mismo. Entrá a la sala de espera para hablar en unos minutos.
                     </p>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className={cn(
-                        "grid grid-cols-2 gap-2 overflow-hidden transition-all duration-300",
-                        showAllSlots ? "max-h-[500px]" : "max-h-[100px]"
-                      )}>
-                        {availableSlots.map((slot) => {
-                          const timeLabel = format(new Date(slot), "HH:mm");
-                          return (
-                            <button
-                              key={slot}
-                              onClick={() => setSelectedTime(slot)}
-                              className={`py-2 px-3 rounded-xl border text-sm font-medium transition-all ${
-                                selectedTime === slot
-                                  ? "bg-pink-500/20 border-pink-500/50 text-pink-300"
-                                  : "border-white/10 hover:border-white/20 text-muted-foreground"
-                              }`}
-                            >
-                              {timeLabel}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      
-                      {availableSlots.length > 4 && (
-                        <button 
-                          onClick={() => setShowAllSlots(!showAllSlots)}
-                          className="w-full py-2 text-xs font-semibold text-violet-400 hover:text-violet-300 transition-colors border border-dashed border-violet-500/30 rounded-xl"
-                        >
-                          {showAllSlots ? "Ver menos" : `Ver ${availableSlots.length - 4} horarios más`}
-                        </button>
-                      )}
+                    <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {talent.queueCount || 0} en espera</span>
+                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> ~{(talent.queueCount || 0) * durationMin} min</span>
                     </div>
-                  )}
+                  </div>
+
+                  <Dialog>
+                    <DialogTrigger 
+                      render={
+                        <Button 
+                          className="w-full btn-gradient text-white border-0 py-6 text-xl font-black rounded-[1.5rem] shadow-2xl hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
+                        >
+                          Entrar a la sala de espera <ArrowUpRight className="w-6 h-6" />
+                        </Button>
+                      }
+                    />
+                    <DialogContent className="glass border-white/10 sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle className="text-xl font-bold">Unirse a la sala de espera</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 pt-4">
+                        <div className="flex justify-between items-center p-6 rounded-2xl bg-black/40 border border-white/5">
+                          <div className="flex items-center gap-4">
+                            <img src={avatarUrl} className="w-12 h-12 rounded-full object-cover border-2 border-violet-500/20" />
+                            <div>
+                              <p className="font-bold text-lg">{stageName}</p>
+                              <p className="text-xs text-muted-foreground">Videollamada en vivo ({durationMin} min)</p>
+                            </div>
+                          </div>
+                          <div className="font-black text-2xl text-violet-300">${priceUsd}</div>
+                        </div>
+
+                        <div className="bg-violet-500/10 text-violet-300 p-4 rounded-2xl text-sm flex gap-3 items-start mt-4">
+                          <ShieldCheck className="w-6 h-6 shrink-0 text-violet-400" />
+                          <p>
+                            Al unirte, entrarás en una sala de espera virtual. Cuando sea tu turno, recibirás una notificación y la videollamada comenzará automáticamente.
+                          </p>
+                        </div>
+
+                        <Button 
+                          onClick={handleJoinQueue} 
+                          disabled={isBooking}
+                          className="w-full btn-gradient mt-6 text-white h-14 rounded-xl font-bold text-lg"
+                        >
+                          {isBooking ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+                          {isBooking ? "Procesando..." : "Entrar a la sala de espera"}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="p-8 rounded-2xl bg-white/5 border border-dashed border-white/10 flex flex-col items-center text-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
+                      <Clock className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-lg">Actualmente offline</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {stageName} no está recibiendo llamadas en este momento. Volvé cuando esté en vivo.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-12 rounded-xl border-white/10 text-muted-foreground hover:text-white"
+                    onClick={() => toast.info("Te avisaremos la próxima vez que esté en vivo (simulado)")}
+                  >
+                    Notificarme cuando esté en vivo
+                  </Button>
                 </div>
               )}
 
-              <Dialog>
-                <DialogTrigger 
-                  disabled={!selectedDate || !selectedTime}
-                  className="w-full btn-gradient text-white border-0 py-6 text-lg font-bold disabled:opacity-50 inline-flex items-center justify-center rounded-lg hover:brightness-110 mb-2 transition-all"
-                >
-                  Reservar ahora
-                </DialogTrigger>
-                <DialogContent className="glass border-white/10 sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="text-xl">Confirmar reserva</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4 pt-4">
-                    <div className="flex justify-between items-center p-4 rounded-xl bg-black/40 border border-white/5">
-                      <div className="flex items-center gap-3">
-                        <img src={avatarUrl} className="w-10 h-10 rounded-full object-cover" />
-                        <div>
-                          <p className="font-semibold text-sm">{stageName}</p>
-                          <p className="text-xs text-muted-foreground">Videollamada ({durationMin} min)</p>
-                        </div>
-                      </div>
-                      <div className="font-bold text-lg text-violet-300">${priceUsd}</div>
-                    </div>
-
-                    {selectedDate && selectedTime && (
-                      <div className="p-4 rounded-xl border border-white/5 text-sm space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Fecha:</span>
-                          <span className="font-medium">{format(selectedDate, "dd 'de' MMMM, yyyy", { locale: es })}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Hora:</span>
-                          <span className="font-medium">{format(new Date(selectedTime), "HH:mm")} hs</span>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="bg-blue-500/10 text-blue-400 p-3 rounded-xl text-xs flex gap-2 items-start mt-4">
-                      <ShieldCheck className="w-8 h-8 shrink-0" />
-                      <p>Para el MVP, se simulará el pago. Al aceptar, la reserva se confirmará automáticamente.</p>
-                    </div>
-
-                    <Button 
-                      onClick={handleBook} 
-                      disabled={isBooking}
-                      className="w-full btn-gradient mt-4 text-white"
-                    >
-                      {isBooking ? "Procesando pago..." : "Confirmar y pagar"}
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
 
             </div>
           </div>

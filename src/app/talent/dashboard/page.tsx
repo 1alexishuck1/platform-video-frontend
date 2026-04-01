@@ -1,22 +1,20 @@
 "use client";
-import { io } from "socket.io-client";
-
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { 
-  TrendingUp, Users, Clock, Zap, Calendar, ArrowUpRight, 
-  Video, DollarSign, Star, Loader2 
+  Users, Zap, Calendar, ArrowUpRight, 
+  Video, DollarSign, Star, Loader2, Activity, VideoOff, Clock, Play
 } from "lucide-react";
 
 import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { BookingStatusBadge } from "@/components/bookings/BookingStatusBadge";
 import { useHydratedAuth } from "@/store/auth";
 import { cn } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export default function TalentDashboard() {
   const router = useRouter();
@@ -24,9 +22,11 @@ export default function TalentDashboard() {
   
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isLive, setIsLive] = useState(false);
+  const [togglingLive, setTogglingLive] = useState(false);
 
   useEffect(() => {
-    const isTalent = user?.role?.toLowerCase() === "talent";
+    const isTalent = (user?.role || "").toLowerCase() === "talent";
     if (isHydrated && (!isAuthenticated || !isTalent)) {
       router.push("/");
       return;
@@ -42,6 +42,7 @@ export default function TalentDashboard() {
         if (res.ok) {
           const json = await res.json();
           setData(json);
+          setIsLive(json.isLive);
         }
       } catch (err) {
         console.error("Error fetching talent dashboard", err);
@@ -51,201 +52,217 @@ export default function TalentDashboard() {
     };
 
     if (token) fetchDashboard();
-
-    // Real-time updates
-    if (token && user?.id) {
-      const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000");
-      socket.emit("join-talent-updates", user.id);
-      
-      socket.on("new-booking", () => {
-        fetchDashboard(); // Re-fetch all data when a new booking happens
-      });
-
-      return () => {
-        socket.disconnect();
-      };
-    }
   }, [isHydrated, isAuthenticated, user, token, router]);
+
+  const handleToggleLive = async () => {
+    setTogglingLive(true);
+    const nextStatus = !isLive;
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/talents/me/toggle-live`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ isLive: nextStatus })
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const updatedStatus = json.profile.isLive;
+        setIsLive(updatedStatus);
+        
+        if (updatedStatus) {
+          toast.success("¡Ahora estás en vivo! Entrando al estudio...");
+          router.push("/talent/live");
+        } else {
+          toast.success("Sesión en vivo finalizada");
+        }
+      }
+    } catch (err) {
+      toast.error("Error al cambiar estado");
+    } finally {
+      setTogglingLive(false);
+    }
+  };
+
+  const allBookings = data?.bookings || [];
+  const history = allBookings.filter((b: any) => {
+    const status = (b.status || "").toUpperCase();
+    return status === "COMPLETED" || status === "CANCELLED" || status === "NO_SHOW";
+  });
+  
+  const stats = data?.stats || { totalRevenue: 0, totalSessions: 0 };
+  const queue = data?.queue || [];
+  const waitingInQueue = queue.filter((b: any) => b.status === "WAITING_IN_QUEUE");
 
   if (!isHydrated || loading) {
     return (
-      <div className="min-h-screen pb-20">
+      <div className="min-h-screen">
         <Navbar />
-        <div className="pt-24 md:pt-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
-          {/* Stats Skeleton */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 rounded-3xl" />)}
+        <div className="pt-24 md:pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 mb-10">
+            <div className="space-y-4 w-1/2">
+              <div className="h-10 w-full bg-white/5 animate-pulse rounded-full" />
+              <div className="h-5 w-3/4 bg-white/5 animate-pulse rounded-full" />
+            </div>
+            <div className="flex gap-4">
+              <div className="h-12 w-32 bg-white/5 animate-pulse rounded-2xl" />
+              <div className="h-12 w-40 bg-white/5 animate-pulse rounded-2xl" />
+            </div>
           </div>
-          {/* List Skeleton */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-40 w-full bg-white/5 animate-pulse rounded-[2.5rem]" />
+            ))}
+          </div>
           <div className="space-y-6">
-            <Skeleton className="h-8 w-64 rounded-full" />
-            {[1, 2].map(i => <Skeleton key={i} className="h-32 w-full rounded-3xl" />)}
+            {[1, 2].map(i => (
+              <div key={i} className="h-40 w-full bg-white/5 animate-pulse rounded-[2rem]" />
+            ))}
           </div>
         </div>
       </div>
     );
   }
 
-  // Filter bookings based on current time
-  const allBookings = data?.bookings || [];
-  const upcoming = allBookings.filter((b: any) => {
-    const status = (b.status || "").toUpperCase();
-    const startsAt = new Date(b.startsAt);
-    const endsAt = new Date(startsAt.getTime() + b.durationSec * 1000);
-    return endsAt > new Date() && status !== "CANCELLED";
-  });
-  const past = allBookings.filter((b: any) => {
-    const status = (b.status || "").toUpperCase();
-    const startsAt = new Date(b.startsAt);
-    const endsAt = new Date(startsAt.getTime() + b.durationSec * 1000);
-    return endsAt <= new Date() || status === "CANCELLED" || status === "COMPLETED";
-  });
-  
-  const stats = data?.stats || { totalRevenue: 0, totalSessions: 0, rating: 5.0 };
-
   return (
     <div className="min-h-screen pb-20">
       <Navbar />
       
-      <main className="pt-24 md:pt-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <main className="pt-20 md:pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 mb-10">
           <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-            <h1 className="text-3xl sm:text-4xl font-bold">¡Hola, {user?.name}!</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">¡Hola, {user?.name}!</h1>
             <p className="text-muted-foreground mt-2">Acá tenés un resumen real de tu actividad y ganancias.</p>
           </div>
-          <div className="flex gap-3 animate-in fade-in slide-in-from-right-4 duration-500">
-            <Link href="/talent/agenda">
-              <Button variant="outline" className="border-white/10 glass gap-2 text-muted-foreground hover:text-foreground h-12 px-6 rounded-2xl">
-                <Calendar className="w-4 h-4 text-violet-400" /> Mi Agenda
-              </Button>
-            </Link>
-            <Link href="/talent/edit">
-              <Button className="btn-gradient text-white border-0 gap-2 h-12 px-6 rounded-2xl shadow-xl">
-                <Star className="w-4 h-4" /> Editar Perfil
-              </Button>
-            </Link>
+          <div className="flex flex-wrap gap-3 animate-in fade-in slide-in-from-right-4 duration-500">
+            {isLive && (
+              <Link href="/talent/live">
+                <Button 
+                  className="h-12 px-8 rounded-2xl font-black bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-[0_0_20px_rgba(139,92,246,0.3)] gap-2"
+                >
+                  <Activity className="w-4 h-4" /> Ir al estudio
+                </Button>
+              </Link>
+            )}
+            <Button 
+              onClick={handleToggleLive}
+              disabled={togglingLive}
+              className={cn(
+                "h-12 px-8 rounded-2xl font-bold transition-all shadow-xl gap-2",
+                isLive 
+                  ? "bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30" 
+                  : "bg-green-500 hover:bg-green-600 text-white border-0"
+              )}
+            >
+              {togglingLive ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : isLive ? (
+                <div className="flex items-center gap-2"><VideoOff className="w-4 h-4" /> Finalizar en vivo</div>
+              ) : (
+                <div className="flex items-center gap-2"><Zap className="w-4 h-4 fill-white" /> Ponerme en vivo</div>
+              )}
+            </Button>
           </div>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
           {[
             { label: "Ganancias totales", value: `$${stats.totalRevenue}`, icon: DollarSign, color: "text-green-400" },
-            { label: "Sessions reservadas", value: stats.totalSessions, icon: Users, color: "text-violet-400" },
-            { label: "Rating", value: stats.rating, icon: Star, color: "text-yellow-400" },
-            { label: "Próximas videocalls", value: upcoming.length, icon: Video, color: "text-pink-400" },
+            { label: "Sesiones completadas", value: stats.totalSessions, icon: Users, color: "text-violet-400" },
+            { label: "Estado actual", value: isLive ? "EN VIVO" : "OFFLINE", icon: Video, color: isLive ? "text-red-400" : "text-muted-foreground" },
           ].map((stat, i) => (
-            <div key={i} className="glass rounded-[2rem] p-8 border border-white/5 flex flex-col justify-between transition-all hover:border-white/10">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
+            <div key={i} className="glass rounded-[2.5rem] p-8 border border-white/5 flex flex-col justify-between transition-all hover:border-white/10 group relative overflow-hidden">
+              <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-all" />
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{stat.label}</p>
                 <div className={cn("p-2 rounded-xl bg-white/5", stat.color)}>
                   <stat.icon className="w-5 h-5 opacity-90" />
                 </div>
               </div>
-              <h2 className="text-4xl font-black font-mono tracking-tight text-white">{stat.value}</h2>
+              <h2 className="text-4xl font-black tracking-tighter text-white relative z-10">{stat.value}</h2>
             </div>
           ))}
         </div>
 
-        {/* Up Next List */}
-        <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold flex items-center gap-3">
-              <div className="w-1.5 h-8 bg-violet-600 rounded-full" />
-              Próximas videollamadas
-            </h2>
-          </div>
-          
-          <div className="glass rounded-[2.5rem] overflow-hidden border border-white/5 shadow-2xl">
-            {upcoming.length === 0 ? (
-              <div className="p-20 text-center flex flex-col items-center gap-4">
-                <div className="p-4 rounded-full bg-white/5">
-                   <Calendar className="w-10 h-10 text-muted-foreground/30" />
-                </div>
-                <p className="text-muted-foreground max-w-xs mx-auto">
-                  No tenés reservas próximas. Asegurate de que tu agenda tenga slots públicos.
-                </p>
-                <Link href="/talent/agenda">
-                   <Button variant="link" className="text-violet-400">Configurar mi agenda ahora</Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="divide-y divide-white/5">
-                {upcoming.map((booking: any) => (
-                  <div key={booking.id} className="p-6 flex flex-col sm:flex-row items-center gap-6 hover:bg-white/5 transition-all group">
-                    <div className="flex items-center gap-5 flex-1 w-full">
-                      {booking.fan?.avatarUrl ? (
-                        <img src={booking.fan.avatarUrl} className="w-14 h-14 rounded-full border-2 border-violet-500/20 object-cover" />
-                      ) : (
-                        <div className="w-14 h-14 rounded-full bg-violet-600/10 text-violet-400 flex items-center justify-center font-bold border border-violet-500/20 text-lg">
-                          {booking.fan?.name?.slice(0, 2).toUpperCase()}
-                        </div>
-                      )}
-                      <div>
-                        <p className="font-bold text-white text-lg group-hover:text-violet-300 transition-colors">
-                          {booking.fan?.name || "Fan Anónimo"}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-3 mt-1.5 text-sm">
-                          <span className="flex items-center gap-1.5 bg-black/40 px-3 py-1 rounded-full text-white font-medium border border-white/5">
-                            <Calendar className="w-4 h-4 text-violet-400" />
-                            {format(new Date(booking.startsAt), "dd 'de' MMM, HH:mm", { locale: es })} hs
-                          </span>
-                          <span className="text-muted-foreground flex items-center gap-1.5">
-                            <Clock className="w-4 h-4" />
-                            {Math.floor(booking.durationSec / 60)} min
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-6 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
-                      <BookingStatusBadge status={booking.status.toLowerCase()} />
-                      <div className="font-mono text-xl font-black text-white px-4 border-l border-white/10 tracking-tight">
-                        ${booking.priceUsd}
-                      </div>
-                      <Link href={`/bookings/${booking.id}/call`} className="shrink-0">
-                        <Button className="btn-gradient border-0 gap-2 h-12 px-6 rounded-2xl shadow-lg hover:scale-105 transition-transform">
-                          Ir a la sala <ArrowUpRight className="w-5 h-5" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
+        {/* Live Session Summaries */}
+        {data?.liveSessions?.length > 0 && (
+          <section className="mt-16 animate-in fade-in slide-in-from-bottom-4 duration-1000 mb-20">
+            <div className="flex items-center justify-between mb-8 px-6">
+               <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                 Resumen de vivos finalizados
+               </h2>
+               <span className="text-[10px] font-black uppercase bg-white/5 border border-white/10 px-3 py-1 rounded-full text-white/40">
+                 Últimos {data.liveSessions.length}
+               </span>
+            </div>
+            
+            <div className="grid gap-6">
+              {data.liveSessions.map((session: any) => {
+                const durationMs = session.endsAt ? new Date(session.endsAt).getTime() - new Date(session.startsAt).getTime() : 0;
+                const durationMin = Math.floor(durationMs / 60000);
+                const durationSec = Math.floor((durationMs % 60000) / 1000);
 
-        {/* Past Sessions List */}
-        {past.length > 0 && (
-          <section className="mt-16 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            <h2 className="text-xl font-bold flex items-center gap-3 mb-6 text-muted-foreground">
-              Historial de videollamadas
-            </h2>
-            <div className="glass rounded-[2rem] overflow-hidden border border-white/5 opacity-80">
-              <div className="divide-y divide-white/5">
-                {past.map((booking: any) => (
-                  <div key={booking.id} className="p-4 px-6 flex items-center gap-6 hover:bg-white/5 transition-all group">
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="w-10 h-10 rounded-full bg-white/5 text-muted-foreground flex items-center justify-center font-bold text-xs uppercase">
-                        {booking.fan?.name?.slice(0, 2) || "FA"}
+                return (
+                  <div key={session.id} className="glass rounded-[2rem] p-6 pr-10 border border-white/5 hover:border-white/10 transition-all group flex items-center gap-8 relative overflow-hidden">
+                    <div className="absolute inset-y-0 left-0 w-1 bg-violet-600 opacity-20 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute -right-20 -top-20 w-40 h-40 bg-violet-600/5 rounded-full blur-3xl group-hover:bg-violet-600/10 transition-all" />
+                    
+                    <div className="flex-1 flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-12 relative z-10">
+                      {/* Date & Time */}
+                      <div className="flex items-center gap-4 min-w-[240px]">
+                        <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-violet-400 border border-white/10 group-hover:bg-violet-500/10 group-hover:scale-105 transition-all">
+                           <Calendar className="w-7 h-7" />
+                        </div>
+                        <div>
+                          <p className="text-base font-black text-white uppercase tracking-tighter">
+                            {format(new Date(session.startsAt), "eeee d 'de' MMMM", { locale: es })}
+                          </p>
+                          <p className="text-[11px] font-bold text-muted-foreground uppercase opacity-60 flex items-center gap-2">
+                            <Clock className="w-3 h-3" />
+                            {format(new Date(session.startsAt), "HH:mm")} - {session.endsAt ? format(new Date(session.endsAt), "HH:mm") : "Sin finalizar"}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-white/80">{booking.fan?.name || "Fan Anónimo"}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {format(new Date(booking.startsAt), "dd MMM, yyyy", { locale: es })}
-                        </p>
+
+                      {/* Stats Grid */}
+                      <div className="flex flex-wrap items-center gap-8 sm:gap-16">
+                         <div className="flex flex-col gap-1">
+                            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Participantes</span>
+                            <div className="flex items-center gap-2.5">
+                               <Users className="w-4 h-4 text-blue-400" />
+                               <span className="text-2xl font-black text-white tabular-nums">{session.totalParticipants}</span>
+                            </div>
+                         </div>
+                         <div className="flex flex-col gap-1">
+                            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Duración total</span>
+                            <div className="flex items-center gap-2.5">
+                               <Activity className="w-4 h-4 text-orange-400" />
+                               <span className="text-2xl font-black text-white tabular-nums">{durationMin}m {durationSec}s</span>
+                            </div>
+                         </div>
+                         <div className="flex flex-col gap-1">
+                            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Ganancia sesión</span>
+                            <div className="flex items-center gap-2.5">
+                               <div className="w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center">
+                                  <DollarSign className="w-3.5 h-3.5 text-green-400" />
+                               </div>
+                               <span className="text-2xl font-black text-green-400 tabular-nums">${session.totalRevenue}</span>
+                            </div>
+                         </div>
                       </div>
                     </div>
-                    <BookingStatusBadge status={booking.status.toLowerCase()} size="sm" />
-                    <div className="text-sm font-bold text-white/60">${booking.priceUsd}</div>
+
+                    <div className="hidden xl:flex flex-col items-end opacity-10 group-hover:opacity-100 group-hover:translate-x-2 transition-all">
+                       <ArrowUpRight className="w-6 h-6 text-white" />
+                    </div>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           </section>
         )}
-
       </main>
     </div>
   );

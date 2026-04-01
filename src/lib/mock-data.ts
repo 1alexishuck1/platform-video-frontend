@@ -16,6 +16,7 @@ export const MOCK_TALENTS: TalentProfile[] = [
     category: "Actriz",
     rating: 4.9,
     total_sessions: 342,
+    isLive: true,
   },
   {
     id: "2",
@@ -30,6 +31,7 @@ export const MOCK_TALENTS: TalentProfile[] = [
     category: "Deportista",
     rating: 4.8,
     total_sessions: 215,
+    isLive: false,
   },
   {
     id: "3",
@@ -44,6 +46,7 @@ export const MOCK_TALENTS: TalentProfile[] = [
     category: "Cantante",
     rating: 4.95,
     total_sessions: 518,
+    isLive: true,
   },
   {
     id: "4",
@@ -58,6 +61,7 @@ export const MOCK_TALENTS: TalentProfile[] = [
     category: "Creator",
     rating: 4.7,
     total_sessions: 890,
+    isLive: false,
   },
   {
     id: "5",
@@ -72,6 +76,7 @@ export const MOCK_TALENTS: TalentProfile[] = [
     category: "Chef",
     rating: 4.85,
     total_sessions: 127,
+    isLive: false,
   },
   {
     id: "6",
@@ -86,6 +91,7 @@ export const MOCK_TALENTS: TalentProfile[] = [
     category: "Actor",
     rating: 4.6,
     total_sessions: 74,
+    isLive: false,
   },
 ];
 

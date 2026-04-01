@@ -48,7 +48,7 @@ export default function ProfilePage() {
     setSuccess(false);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Removed artificial delay for faster UX
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
@@ -75,8 +75,42 @@ export default function ProfilePage() {
 
   if (!isHydrated || !user) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="pt-24 pb-20 px-4 md:px-8 max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-8">
+            <aside className="w-full md:w-64 space-y-6">
+              <div className="p-6 rounded-3xl glass-card border border-white/10 flex flex-col items-center">
+                <div className="w-24 h-24 rounded-full bg-white/5 animate-pulse mb-4" />
+                <div className="h-6 w-3/4 bg-white/5 animate-pulse rounded-full" />
+                <div className="h-4 w-1/2 bg-white/5 animate-pulse rounded-full mt-2" />
+              </div>
+              <div className="p-2 rounded-3xl glass-card border border-white/5 space-y-2">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="h-10 w-full bg-white/5 animate-pulse rounded-2xl" />
+                ))}
+              </div>
+            </aside>
+            <main className="flex-1">
+              <div className="p-8 md:p-10 rounded-[2.5rem] glass-card border border-white/10 min-h-[500px]">
+                <div className="flex justify-between items-start mb-8">
+                  <div className="space-y-4 w-full">
+                    <div className="h-8 w-1/3 bg-white/5 animate-pulse rounded-full" />
+                    <div className="h-4 w-1/2 bg-white/5 animate-pulse rounded-full" />
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="space-y-2">
+                      <div className="h-4 w-20 bg-white/5 animate-pulse rounded" />
+                      <div className="h-12 w-full bg-white/5 animate-pulse rounded-2xl" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
       </div>
     );
   }

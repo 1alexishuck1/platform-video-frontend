@@ -12,6 +12,7 @@ import { Eye, EyeOff, Video, Loader2, User, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth";
 import { UserRole } from "@/types";
 import { apiFetch } from "@/lib/api";
@@ -63,7 +64,7 @@ function RegisterContent() {
       login(response.user, response.token);
       router.push(role === "talent" ? "/talent/profile" : "/dashboard");
     } catch (error: any) {
-      alert(error.message || "Ocurrió un error en el registro");
+      toast.error(error.message || "Ocurrió un error en el registro");
     } finally {
       setIsLoading(false);
     }

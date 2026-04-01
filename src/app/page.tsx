@@ -1,150 +1,152 @@
-// Home page — hero section + featured talents grid
-// Uses mock data; connect to GET /talents when backend is ready
+"use client";
 
-import Link from "next/link";
-import { ArrowRight, Star, Zap, Shield } from "lucide-react";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { TalentCard } from "@/components/talents/TalentCard";
+import { CATEGORIES } from "@/lib/mock-data";
+import { Input } from "@/components/ui/input";
+import { Search, Loader2 } from "lucide-react";
 import { TalentProfile } from "@/types";
+import { apiFetch } from "@/lib/api";
+import { io } from "socket.io-client";
 
-async function getTalents(): Promise<TalentProfile[]> {
-  try {
-    const apiUrl = "https://platform-video-backend-production.up.railway.app/api/talents";
-    const res = await fetch(apiUrl, { 
-      next: { revalidate: 0 } 
+export default function IndexPage() {
+  const [talents, setTalents] = useState<TalentProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeCategory, setActiveCategory] = useState("Todos");
+
+  useEffect(() => {
+    const fetchTalents = async () => {
+      try {
+        const data = await apiFetch("/talents");
+        setTalents(data.talents || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTalents();
+
+    // Sockets for real-time live status updates
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000");
+    
+    socket.on("connect", () => {
+      console.log("Socket connected for explorer updates");
     });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.talents || [];
-  } catch (err) {
-    return [];
-  }
-}
 
-const FEATURES = [
-  {
-    icon: Zap,
-    title: "Conexión instantánea",
-    desc: "Entra a la sala de videollamada con un click. Sin apps, sin descargas.",
-  },
-  {
-    icon: Star,
-    title: "Talentos verificados",
-    desc: "Cada perfil es verificado manualmente. Solo lo mejor para vos.",
-  },
-  {
-    icon: Shield,
-    title: "Pago seguro",
-    desc: "Tu dinero está protegido. Se libera solo cuando la sesión ocurre.",
-  },
-];
+    socket.on("talent-status-updated", ({ talentId, isLive }) => {
+      setTalents((prev) => 
+        prev.map(t => t.id === talentId ? { ...t, isLive } : t)
+      );
+    });
 
-export default async function HomePage() {
-  const allTalents = await getTalents();
-  const featured = allTalents.slice(0, 3);
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  const filteredTalents = talents.filter(t => {
+    const matchesSearch = (t.stageName || t.stage_name || "").toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = activeCategory === "Todos" || t.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const liveNow = filteredTalents.filter(t => t.isLive);
+  const offline = filteredTalents.filter(t => !t.isLive);
 
   return (
     <div className="min-h-screen">
       <Navbar />
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Hero */}
-        <section className="pt-32 pb-24 text-center">
-          <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-2 mb-8">
-            <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
-            <span className="text-sm text-violet-300 font-medium whitespace-nowrap">Más de 500 sesiones completadas</span>
+      
+      <main className="pt-20 md:pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-8 md:mb-12">
+          <div className="animate-in fade-in slide-in-from-left-4 duration-500">
+            <h1 className="text-4xl font-bold gradient-text">Talentos en vivo</h1>
+            <p className="text-muted-foreground mt-2">Encontrá a tus favoritos y hablá con ellos en persona.</p>
           </div>
-
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.15] mb-6 tracking-tight">
-            Conocé a tus{" "}
-            <span className="gradient-text">favoritos</span>
-            <br />
-            en persona.
-          </h1>
-
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed">
-            Reservá una videollamada exclusiva de 2 minutos con actores, deportistas, cantantes y creadores.
-            Un momento único, real y en tiempo real.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link 
-              href="/talents" 
-              className={cn(buttonVariants({ size: "lg" }), "btn-gradient text-white border-0 shadow-xl text-base px-10 h-14 gap-2 w-full sm:w-auto")}
-            >
-              Ver talentos <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link 
-              href="/register?role=talent" 
-              className={cn(buttonVariants({ size: "lg", variant: "outline" }), "border-white/10 glass text-muted-foreground hover:text-foreground h-14 text-base px-10 w-full sm:w-auto")}
-            >
-              Soy un talento
-            </Link>
+          
+          <div className="relative w-full md:w-80 animate-in fade-in slide-in-from-right-4 duration-500">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input 
+              placeholder="Buscar por nombre..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 input-dark h-12 md:h-11 rounded-xl"
+            />
           </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-24 pt-16 border-t border-border">
-            {[
-              { value: "500+", label: "Sesiones completadas" },
-              { value: "120+", label: "Talentos activos" },
-              { value: "4.9★", label: "Calificación" },
-              { value: "2 min", label: "Por sesión" },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center group">
-                <div className="text-3xl font-bold gradient-text group-hover:scale-110 transition-transform duration-300">{stat.value}</div>
-                <div className="text-sm text-muted-foreground mt-1 font-medium">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Featured talents */}
-        <section className="py-24">
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <h2 className="text-3xl font-bold">Talentos destacados</h2>
-            <p className="text-muted-foreground mt-2">Los más solicitados esta semana</p>
-          </div>
-          <Link 
-            href="/talents"
-            className={cn(buttonVariants({ variant: "ghost" }), "text-violet-400 hover:text-violet-300 gap-2")}
-          >
-            Ver todos <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featured.map((talent) => (
-            <TalentCard key={talent.id} talent={talent} />
+
+        {/* Categories (Mock filters) */}
+        <div className="flex gap-2 overflow-x-auto pb-6 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 animate-in fade-in duration-700">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium transition-all border ${
+                activeCategory === cat 
+                  ? "bg-violet-600 border-violet-500 text-white shadow-lg shadow-violet-600/20" 
+                  : "glass border-white/5 hover:border-white/20 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {cat}
+            </button>
           ))}
         </div>
-      </section>
 
-      {/* Features */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="glass rounded-3xl p-12">
-          <h2 className="text-3xl font-bold text-center mb-12">¿Por qué PlatfomLive?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {FEATURES.map((f) => (
-              <div key={f.title} className="text-center">
-                <div className="w-12 h-12 rounded-2xl bg-violet-500/15 border border-violet-500/20 flex items-center justify-center mx-auto mb-4">
-                  <f.icon className="w-6 h-6 text-violet-400" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">{f.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+        {loading ? (
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 mt-12 mb-20 animate-pulse">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="glass rounded-2xl h-[350px] flex flex-col p-4 border border-white/5">
+                <div className="h-40 rounded-xl bg-white/5 mb-4" />
+                <div className="h-6 w-3/4 rounded bg-white/10 mb-2" />
+                <div className="h-4 w-1/2 rounded bg-white/5 mb-6" />
+                <div className="mt-auto h-12 rounded-xl bg-white/5" />
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        ) : (
+          <div className="space-y-16 mt-12 mb-20">
+            {/* Live Section */}
+            <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-2 h-8 bg-red-500 rounded-full animate-pulse" />
+                <h2 className="text-2xl font-bold text-white uppercase tracking-tighter">En vivo ahora</h2>
+                <div className="bg-red-500/10 text-red-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-red-500/20">
+                  {liveNow.length} ACTIVOS
+                </div>
+              </div>
 
+              {liveNow.length === 0 ? (
+                <div className="glass rounded-[2rem] sm:rounded-[2.5rem] p-10 sm:p-16 text-center border-dashed border-2 border-white/5 opacity-60">
+                  <p className="text-muted-foreground font-medium text-base sm:text-lg">No hay talentos en vivo en este momento. ¡Volvé pronto!</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+                  {liveNow.map((talent) => (
+                    <TalentCard key={talent.id} talent={talent} />
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* Offline Section */}
+            <section className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-2 h-8 bg-violet-600 rounded-full" />
+                <h2 className="text-2xl font-bold text-white uppercase tracking-tighter opacity-60">Explorar offline</h2>
+              </div>
+
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 opacity-80">
+                {offline.map((talent) => (
+                  <TalentCard key={talent.id} talent={talent} />
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-white/5 py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center text-sm text-muted-foreground">
-        <p>© 2025 PlatfomLive. Todos los derechos reservados.</p>
-      </footer>
     </div>
   );
 }

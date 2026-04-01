@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { User, Settings, DollarSign, Clock, LayoutDashboard, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
@@ -44,9 +45,8 @@ export default function TalentProfileEdit() {
 
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
-    // Simula API call PUT /talents
-    await new Promise((r) => setTimeout(r, 1000));
-    alert("Perfil guardado con éxito. (MVP Mock)");
+    // Removed artificial delay
+    toast.success("Perfil guardado con éxito.");
     setIsLoading(false);
   };
 
@@ -56,11 +56,11 @@ export default function TalentProfileEdit() {
     <div className="min-h-screen pb-20">
       <Navbar />
       
-      <div className="pt-24 md:pt-32 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+      <div className="pt-20 md:pt-24 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Settings className="w-8 h-8 text-violet-400" /> Mi Perfil
+              <Settings className="w-8 h-8 text-violet-400" /> Mi perfil
             </h1>
             <p className="text-muted-foreground mt-1">Configurá cómo te ven los fans y cuánto cobrás.</p>
           </div>
@@ -80,7 +80,7 @@ export default function TalentProfileEdit() {
             <div className="space-y-5">
               <div className="grid sm:grid-cols-2 gap-5">
                 <div className="space-y-2">
-                  <Label>Nombre Artístico</Label>
+                  <Label>Nombre artístico</Label>
                   <Input className="input-dark h-11" placeholder="Ej. Valentina Cruz" {...register("stage_name")} />
                   {errors.stage_name && <p className="text-xs text-red-400">{errors.stage_name.message}</p>}
                 </div>
@@ -107,7 +107,7 @@ export default function TalentProfileEdit() {
           <div className="glass rounded-3xl p-6 sm:p-8 border border-white/10 shadow-xl">
             <div className="flex items-center gap-3 mb-6 border-b border-white/5 pb-4">
               <DollarSign className="w-5 h-5 text-green-400" />
-              <h2 className="text-xl font-semibold">Servicio y Precios</h2>
+              <h2 className="text-xl font-semibold">Servicio y precios</h2>
             </div>
             
             <div className="grid sm:grid-cols-2 gap-6">

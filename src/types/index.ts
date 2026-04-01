@@ -1,7 +1,7 @@
 // Core domain types — mirrors backend DB schema
 
 export type UserRole = "fan" | "talent" | "admin";
-export type BookingStatus = "pending" | "confirmed" | "completed" | "cancelled";
+export type BookingStatus = "pending" | "confirmed" | "completed" | "cancelled" | "waiting_in_queue" | "in_progress";
 
 export interface User {
   id: string;
@@ -26,9 +26,11 @@ export interface TalentProfile {
   sessionDurationMin?: number; // Real API
   timezone: string;
   is_active: boolean;
+  isLive: boolean; // Virtual queue live status
   category?: string;
   rating?: number;
   total_sessions?: number;
+  queueCount?: number;
 }
 
 export interface AvailabilityRule {

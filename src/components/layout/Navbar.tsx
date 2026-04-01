@@ -27,8 +27,8 @@ import { useAuthStore, useHydratedAuth } from "@/store/auth";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "/", label: "Inicio" },
-  { href: "/talents", label: "Talentos" },
+  { href: "/", label: "Talentos" },
+  { href: "/about", label: "Acerca de" },
 ];
 
 export function Navbar() {
@@ -51,9 +51,9 @@ export function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 md:h-16 grid grid-cols-2 md:grid-cols-3 items-center">
-        {/* Left: Logo */}
-        <div className="flex justify-start">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 md:h-16 flex items-center">
+        {/* Left Section (1/3) */}
+        <div className="flex-1 flex justify-start items-center">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-8 h-8 rounded-lg btn-gradient flex items-center justify-center shadow-lg">
               <Video className="w-4 h-4 text-white" />
@@ -62,8 +62,8 @@ export function Navbar() {
           </Link>
         </div>
 
-        {/* Center: Desktop nav */}
-        <div className="hidden md:flex justify-center items-center gap-8">
+        {/* Center Section (1/3) */}
+        <div className="hidden md:flex flex-none items-center justify-center gap-8">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -80,8 +80,8 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* Right: Auth area & Mobile trigger */}
-        <div className="flex justify-end items-center gap-3">
+        {/* Right Section (1/3) */}
+        <div className="flex-1 flex justify-end items-center gap-3">
           <div className="hidden md:flex items-center gap-3">
             {!isHydrated ? (
                <div className="w-20 h-8 rounded-md bg-white/5 animate-pulse" />
@@ -101,45 +101,45 @@ export function Navbar() {
                   {user && (user.role === "fan" || (user.role as string) === "FAN") && (
                     <>
                       <DropdownMenuItem 
-                        onClick={() => router.push("/dashboard")}
-                        className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
-                      >
-                        <LayoutDashboard className="w-4 h-4" /> Mis reservas
-                      </DropdownMenuItem>
+                        render={
+                          <Link href="/dashboard" className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors">
+                            <LayoutDashboard className="w-4 h-4" /> Mis sesiones
+                          </Link>
+                        }
+                      />
                       <DropdownMenuItem 
-                        onClick={() => router.push("/profile")}
-                        className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
-                      >
-                        <User className="w-4 h-4" /> Mi perfil
-                      </DropdownMenuItem>
+                        render={
+                          <Link href="/profile" className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors">
+                            <User className="w-4 h-4" /> Mi perfil
+                          </Link>
+                        }
+                      />
                     </>
                   )}
                   {user && (user.role === "talent" || (user.role as string) === "TALENT") && (
                     <>
                       <DropdownMenuItem 
-                        onClick={() => router.push("/talent/dashboard")}
-                        className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
-                      >
-                        <LayoutDashboard className="w-4 h-4" /> Dashboard
-                      </DropdownMenuItem>
+                        render={
+                          <Link href="/talent/dashboard" className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors">
+                            <LayoutDashboard className="w-4 h-4" /> Dashboard
+                          </Link>
+                        }
+                      />
+
                       <DropdownMenuItem 
-                        onClick={() => router.push("/talent/agenda")}
-                        className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
-                      >
-                        <Calendar className="w-4 h-4" /> Mi agenda
-                      </DropdownMenuItem>
+                        render={
+                          <Link href="/talent/profile" className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors">
+                            <User className="w-4 h-4" /> Perfil público
+                          </Link>
+                        }
+                      />
                       <DropdownMenuItem 
-                        onClick={() => router.push("/talent/profile")}
-                        className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
-                      >
-                        <User className="w-4 h-4" /> Perfil público
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => router.push("/talent/edit")}
-                        className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors"
-                      >
-                        <User className="w-4 h-4" /> Editar perfil
-                      </DropdownMenuItem>
+                        render={
+                          <Link href="/talent/edit" className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 transition-colors">
+                            <User className="w-4 h-4" /> Editar perfil
+                          </Link>
+                        }
+                      />
                     </>
                   )}
                   <DropdownMenuSeparator className="bg-white/10" />
@@ -172,12 +172,12 @@ export function Navbar() {
 
         {/* Mobile menu - Show only on small screens */}
         <Sheet>
-            <SheetTrigger asChild>
+            <SheetTrigger render={
               <Button variant="ghost" size="icon" className="md:hidden hover:bg-white/10 p-2 rounded-xl transition-colors">
                 <Menu className="w-6 h-6" />
                 <span className="sr-only">Abrir menú</span>
               </Button>
-            </SheetTrigger>
+            } />
           <SheetContent side="right" className="w-[85%] max-w-sm glass border-l border-white/10 p-0 flex flex-col shadow-2xl overflow-hidden" showCloseButton={false}>
             {/* Header */}
             <div className="p-6 border-b border-white/5 flex items-center justify-between bg-black/40">
@@ -187,11 +187,11 @@ export function Navbar() {
                 </div>
                 <span className="font-bold text-lg gradient-text">Menu</span>
               </div>
-              <SheetClose asChild>
+              <SheetClose render={
                 <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/10">
                   <XIcon className="w-5 h-5" />
                 </Button>
-              </SheetClose>
+              } />
             </div>
 
             <div className="flex-1 overflow-y-auto px-6 py-8 space-y-8">
@@ -224,7 +224,7 @@ export function Navbar() {
                     {(user.role === "fan" || (user.role as string) === "FAN") ? (
                       <>
                         <Link href="/dashboard" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
-                          <LayoutDashboard className="w-5 h-5 text-violet-400" /> Mis reservas
+                          <LayoutDashboard className="w-5 h-5 text-violet-400" /> Mis sesiones
                         </Link>
                         <Link href="/profile" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
                           <User className="w-5 h-5 text-violet-400" /> Mi perfil
@@ -235,9 +235,7 @@ export function Navbar() {
                         <Link href="/talent/dashboard" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
                           <LayoutDashboard className="w-5 h-5 text-violet-400" /> Dashboard
                         </Link>
-                        <Link href="/talent/agenda" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
-                          <Calendar className="w-5 h-5 text-violet-400" /> Mi agenda
-                        </Link>
+
                         <Link href="/talent/profile" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
                           <User className="w-5 h-5 text-violet-400" /> Perfil público
                         </Link>
