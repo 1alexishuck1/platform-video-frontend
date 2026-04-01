@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import { format } from "date-fns";
-import { toast } from "sonner";
+import { Toaster, toast } from "sonner";
 
 import { useHydratedAuth } from "@/store/auth";
 import { apiFetch } from "@/lib/api";
@@ -369,6 +369,7 @@ export default function VideoCallRoom() {
 
   return (
     <div className="h-screen bg-black flex overflow-hidden">
+      <Toaster position="top-center" expand={true} richColors />
       
       {/* Container - Flexible Layout */}
       <div className="flex-1 flex flex-row relative overflow-hidden transition-all duration-300">
@@ -416,22 +417,22 @@ export default function VideoCallRoom() {
                    <p className="text-sm font-black uppercase tracking-[0.2em] opacity-40">Estableciendo conexión...</p>
                 </div>
               ) : booking.status === "WAITING_IN_QUEUE" ? (
-                <div className="relative w-full h-full flex flex-col items-center justify-center px-6">
+                <div className="relative w-full h-full flex flex-col items-center justify-center px-6 pt-16">
                    <div className="absolute inset-0 bg-gradient-to-b from-violet-900/5 to-black pointer-events-none" />
                    
-                   <div className="z-10 w-full max-w-lg space-y-12">
-                      <div className="text-center space-y-4">
+                   <div className="z-10 w-full max-w-lg space-y-8">
+                      <div className="text-center space-y-3">
                         <div className="inline-block px-4 py-1.5 rounded-full bg-violet-600/10 border border-violet-500/20 text-violet-400 text-[10px] font-black uppercase tracking-[0.2em]">
                            Sala de espera virtual
                         </div>
                         <h2 className="text-5xl sm:text-6xl font-black text-white uppercase tracking-tighter leading-none">
                            Estás en <br/> la cola
                         </h2>
-                        <p className="text-violet-300/60 font-bold text-lg">Esperando a {booking.talent?.stageName || booking.talent?.name}</p>
+                        <p className="text-violet-300/60 font-bold text-sm">Esperando a {booking.talent?.stageName || booking.talent?.name}</p>
                       </div>
 
                       {/* Main Self Preview - Much larger and centered */}
-                      <div className="relative aspect-video sm:aspect-square sm:w-80 mx-auto rounded-[2.5rem] border-4 border-white/10 overflow-hidden shadow-[0_0_80px_rgba(139,92,246,0.15)] bg-black group">
+                      <div className="relative aspect-video sm:aspect-square sm:w-64 mx-auto rounded-[2rem] border-4 border-white/10 overflow-hidden shadow-[0_0_80px_rgba(139,92,246,0.15)] bg-black group">
                          <video 
                            ref={videoRef}
                            autoPlay 
