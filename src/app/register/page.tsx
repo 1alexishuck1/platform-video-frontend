@@ -35,10 +35,6 @@ function RegisterContent() {
   const { login } = useAuthStore();
   const [showPass, setShowPass] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [role, setRole] = useState<UserRole>(
-    (searchParams.get("role") as UserRole) || "fan"
-  );
-
   const {
     register,
     handleSubmit,
@@ -52,7 +48,6 @@ function RegisterContent() {
         name: data.name,
         email: data.email,
         password: data.password,
-        role: role === "fan" ? "FAN" : "TALENT", // mapear al Enum del backend
       };
 
       const response = await apiFetch("/auth/register", {
@@ -62,7 +57,7 @@ function RegisterContent() {
 
       // El backend devuelve { user, token }
       login(response.user, response.token);
-      router.push(role === "talent" ? "/talent/profile" : "/dashboard");
+      router.push("/dashboard");
     } catch (error: any) {
       toast.error(error.message || "Ocurrió un error en el registro");
     } finally {
@@ -90,32 +85,6 @@ function RegisterContent() {
         </div>
 
         <div className="glass rounded-2xl p-8 border border-white/8">
-          {/* Role selector */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            {[
-              { value: "fan" as UserRole, label: "Soy fan", icon: User, desc: "Reservo sesiones" },
-              { value: "talent" as UserRole, label: "Soy talento", icon: Star, desc: "Ofrezco sesiones" },
-            ].map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => setRole(option.value)}
-                className={`p-4 rounded-xl border text-left transition-all ${
-                  role === option.value
-                    ? "border-violet-500/60 bg-violet-500/10"
-                    : "border-white/10 hover:border-white/20"
-                }`}
-              >
-                <option.icon
-                  className={`w-5 h-5 mb-2 ${role === option.value ? "text-violet-400" : "text-muted-foreground"}`}
-                />
-                <div className={`font-semibold text-sm ${role === option.value ? "text-violet-300" : ""}`}>
-                  {option.label}
-                </div>
-                <div className="text-xs text-muted-foreground">{option.desc}</div>
-              </button>
-            ))}
-          </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
