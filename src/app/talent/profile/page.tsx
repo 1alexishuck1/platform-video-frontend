@@ -11,13 +11,13 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuthStore } from "@/store/auth";
+import { useAuthStore, useHydratedAuth } from "@/store/auth";
 
 const profileSchema = z.object({
-  stage_name: z.string().min(2, "Nombre artístico muy corto"),
+  stageName: z.string().min(2, "Nombre artístico muy corto"),
   bio: z.string().min(10, "Breve descripción obligatoria"),
-  price_usd: z.coerce.number().min(1, "El precio debe ser mayor a 0"),
-  session_duration_min: z.coerce.number().min(1, "Mínimo 1 minuto").max(60, "Máximo 60 minutos"),
+  priceUsd: z.coerce.number().min(1, "El precio debe ser mayor a 0"),
+  sessionDurationMin: z.coerce.number().min(1, "Mínimo 1 minuto").max(60, "Máximo 60 minutos"),
   category: z.string().min(2, "Categoría obligatoria"),
 });
 
@@ -25,29 +25,68 @@ type FormData = z.infer<typeof profileSchema>;
 
 export default function TalentProfileEdit() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, token, isAuthenticated, isHydrated } = useHydratedAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
-  useEffect(() => {
-    if (!isAuthenticated) router.push("/login");
-  }, [isAuthenticated, router]);
-
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({ 
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>({ 
     resolver: zodResolver(profileSchema) as any,
     defaultValues: {
-      stage_name: user?.name || "",
+      stageName: user?.name || "",
       bio: "¡Hola! Soy creador de contenido y me encantaría charlar con vos un rato.",
-      price_usd: 15,
-      session_duration_min: 2,
+      priceUsd: 15,
+      sessionDurationMin: 2,
       category: "Creator"
     }
   });
 
+  useEffect(() => {
+    if (isHydrated && !isAuthenticated) router.push("/login");
+    
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/talents/me/profile`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const { profile } = await res.json();
+          if (profile) {
+            setValue("stageName", profile.stageName);
+            setValue("bio", profile.bio || "");
+            setValue("priceUsd", profile.priceUsd);
+            setValue("sessionDurationMin", profile.sessionDurationMin);
+            setValue("category", profile.category);
+          }
+          setProfileLoaded(true);
+        }
+      } catch (err) {
+        console.error("Error fetching profile", err);
+      }
+    };
+
+    if (token && !profileLoaded) fetchProfile();
+  }, [isHydrated, isAuthenticated, token, router, setValue, profileLoaded]);
+
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
-    // Removed artificial delay
-    toast.success("Perfil guardado con éxito.");
-    setIsLoading(false);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/talents/me/update`, {
+        method: "PUT",
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        toast.success("Perfil guardado con éxito.");
+        router.push("/talent/dashboard");
+      }
+    } catch (error) {
+      toast.error("Error al guardar perfil.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!isAuthenticated || !user) return null;
@@ -81,8 +120,8 @@ export default function TalentProfileEdit() {
               <div className="grid sm:grid-cols-2 gap-5">
                 <div className="space-y-2">
                   <Label>Nombre artístico</Label>
-                  <Input className="input-dark h-11" placeholder="Ej. Valentina Cruz" {...register("stage_name")} />
-                  {errors.stage_name && <p className="text-xs text-red-400">{errors.stage_name.message}</p>}
+                  <Input className="input-dark h-11" placeholder="Ej. Valentina Cruz" {...register("stageName")} />
+                  {errors.stageName && <p className="text-xs text-red-400">{errors.stageName.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Categoría</Label>
@@ -115,18 +154,18 @@ export default function TalentProfileEdit() {
                 <Label>Duración de la sesión (minutos)</Label>
                 <div className="relative">
                   <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input type="number" min="1" max="60" className="input-dark pl-9 h-11 text-lg font-mono font-bold" {...register("session_duration_min")} />
+                  <Input type="number" min="1" max="60" className="input-dark pl-9 h-11 text-lg font-mono font-bold" {...register("sessionDurationMin")} />
                 </div>
-                {errors.session_duration_min && <p className="text-xs text-red-400">{errors.session_duration_min.message}</p>}
+                {errors.sessionDurationMin && <p className="text-xs text-red-400">{errors.sessionDurationMin.message}</p>}
               </div>
 
               <div className="space-y-2">
                 <Label>Precio por sesión (USD)</Label>
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-400" />
-                  <Input type="number" min="1" step="0.01" className="input-dark pl-9 h-11 text-lg font-mono font-bold text-green-400" {...register("price_usd")} />
+                  <Input type="number" min="1" step="0.01" className="input-dark pl-9 h-11 text-lg font-mono font-bold text-green-400" {...register("priceUsd")} />
                 </div>
-                {errors.price_usd && <p className="text-xs text-red-400">{errors.price_usd.message}</p>}
+                {errors.priceUsd && <p className="text-xs text-red-400">{errors.priceUsd.message}</p>}
                 <p className="text-[11px] text-muted-foreground mt-1">Stripe retendrá un ~3% por procesamiento.</p>
               </div>
             </div>

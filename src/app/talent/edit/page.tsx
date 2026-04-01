@@ -32,9 +32,8 @@ export default function TalentEditPage() {
   });
 
   useEffect(() => {
-    const isTalent = (user?.role || "").toLowerCase() === "talent";
-    if (isHydrated && (!isAuthenticated || !isTalent)) {
-      router.push("/");
+    if (isHydrated && !isAuthenticated) {
+      router.push("/login");
       return;
     }
 

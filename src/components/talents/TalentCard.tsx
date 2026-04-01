@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Star, Clock, Zap } from "lucide-react";
+import { Star, Clock, Zap, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -62,8 +62,11 @@ export function TalentCard({ talent }: TalentCardProps) {
         {/* Info */}
         <div className="p-4 sm:p-5 flex flex-col flex-1 gap-2.5 sm:gap-3">
           <div>
-            <h3 className="font-bold text-lg text-white group-hover:text-violet-300 transition-colors">
+            <h3 className="font-bold text-lg text-white group-hover:text-violet-300 transition-colors flex items-center gap-1.5">
               {stageName}
+              {talent.isVerified && (
+                <CheckCircle2 className="w-4 h-4 text-blue-400 fill-blue-400/10" />
+              )}
             </h3>
             <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{talent.bio}</p>
           </div>

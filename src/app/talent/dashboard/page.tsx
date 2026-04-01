@@ -26,9 +26,8 @@ export default function TalentDashboard() {
   const [togglingLive, setTogglingLive] = useState(false);
 
   useEffect(() => {
-    const isTalent = (user?.role || "").toLowerCase() === "talent";
-    if (isHydrated && (!isAuthenticated || !isTalent)) {
-      router.push("/");
+    if (isHydrated && !isAuthenticated) {
+      router.push("/login");
       return;
     }
 

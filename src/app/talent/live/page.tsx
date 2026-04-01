@@ -63,12 +63,6 @@ export default function TalentLiveStudio() {
       router.push("/login");
       return;
     }
-    
-    const isTalent = (user?.role || "").toLowerCase() === "talent";
-    if (isAuthenticated && !isTalent) {
-      router.push("/dashboard");
-      return;
-    }
 
     const init = async () => {
       try {

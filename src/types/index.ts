@@ -28,6 +28,7 @@ export interface TalentProfile {
   timezone: string;
   is_active: boolean;
   isLive: boolean; // Virtual queue live status
+  isVerified?: boolean; // Real API
   category?: string;
   rating?: number;
   total_sessions?: number;
