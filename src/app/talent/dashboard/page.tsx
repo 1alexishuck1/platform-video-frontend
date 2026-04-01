@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { 
-  Users, Zap, Calendar, ArrowUpRight, 
+import {
+  Users, Zap, Calendar, ArrowUpRight,
   Video, DollarSign, Star, Loader2, Activity, VideoOff, Clock, Play
 } from "lucide-react";
 
@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 export default function TalentDashboard() {
   const router = useRouter();
   const { user, token, isAuthenticated, isHydrated } = useHydratedAuth();
-  
+
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isLive, setIsLive] = useState(false);
@@ -69,7 +69,7 @@ export default function TalentDashboard() {
         const json = await res.json();
         const updatedStatus = json.profile.isLive;
         setIsLive(updatedStatus);
-        
+
         if (updatedStatus) {
           toast.success("¡Ahora estás en vivo! Entrando al estudio...");
           router.push("/talent/live");
@@ -89,7 +89,7 @@ export default function TalentDashboard() {
     const status = (b.status || "").toUpperCase();
     return status === "COMPLETED" || status === "CANCELLED" || status === "NO_SHOW";
   });
-  
+
   const stats = data?.stats || { totalRevenue: 0, totalSessions: 0 };
   const queue = data?.queue || [];
   const waitingInQueue = queue.filter((b: any) => b.status === "WAITING_IN_QUEUE");
@@ -127,7 +127,7 @@ export default function TalentDashboard() {
   return (
     <div className="min-h-screen pb-20">
       <Navbar />
-      
+
       <main className="pt-20 md:pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 mb-10">
           <div className="animate-in fade-in slide-in-from-left-4 duration-500">
@@ -137,20 +137,20 @@ export default function TalentDashboard() {
           <div className="flex flex-wrap gap-3 animate-in fade-in slide-in-from-right-4 duration-500">
             {isLive && (
               <Link href="/talent/live">
-                <Button 
+                <Button
                   className="h-12 px-8 rounded-2xl font-black bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-[0_0_20px_rgba(139,92,246,0.3)] gap-2"
                 >
                   <Activity className="w-4 h-4" /> Ir al estudio
                 </Button>
               </Link>
             )}
-            <Button 
+            <Button
               onClick={handleToggleLive}
               disabled={togglingLive}
               className={cn(
                 "h-12 px-8 rounded-2xl font-bold transition-all shadow-xl gap-2",
-                isLive 
-                  ? "bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30" 
+                isLive
+                  ? "bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30"
                   : "bg-green-500 hover:bg-green-600 text-white border-0"
               )}
             >
@@ -159,7 +159,7 @@ export default function TalentDashboard() {
               ) : isLive ? (
                 <div className="flex items-center gap-2"><VideoOff className="w-4 h-4" /> Finalizar en vivo</div>
               ) : (
-                <div className="flex items-center gap-2"><Zap className="w-4 h-4 fill-white" /> Ponerme en vivo</div>
+                <div className="flex items-center gap-2 font-black"><Zap className="w-4 h-4 fill-white" /> ¡Transmitir en vivo!</div>
               )}
             </Button>
           </div>
@@ -189,14 +189,14 @@ export default function TalentDashboard() {
         {data?.liveSessions?.length > 0 && (
           <section className="mt-16 animate-in fade-in slide-in-from-bottom-4 duration-1000 mb-20">
             <div className="flex items-center justify-between mb-8 px-6">
-               <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
-                 Resumen de vivos finalizados
-               </h2>
-               <span className="text-[10px] font-black uppercase bg-white/5 border border-white/10 px-3 py-1 rounded-full text-white/40">
-                 Últimos {data.liveSessions.length}
-               </span>
+              <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                Resumen de vivos finalizados
+              </h2>
+              <span className="text-[10px] font-black uppercase bg-white/5 border border-white/10 px-3 py-1 rounded-full text-white/40">
+                Últimos {data.liveSessions.length}
+              </span>
             </div>
-            
+
             <div className="grid gap-6">
               {data.liveSessions.map((session: any) => {
                 const durationMs = session.endsAt ? new Date(session.endsAt).getTime() - new Date(session.startsAt).getTime() : 0;
@@ -207,12 +207,12 @@ export default function TalentDashboard() {
                   <div key={session.id} className="glass rounded-[2rem] p-6 pr-10 border border-white/5 hover:border-white/10 transition-all group flex items-center gap-8 relative overflow-hidden">
                     <div className="absolute inset-y-0 left-0 w-1 bg-violet-600 opacity-20 group-hover:opacity-100 transition-opacity" />
                     <div className="absolute -right-20 -top-20 w-40 h-40 bg-violet-600/5 rounded-full blur-3xl group-hover:bg-violet-600/10 transition-all" />
-                    
+
                     <div className="flex-1 flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-12 relative z-10">
                       {/* Date & Time */}
                       <div className="flex items-center gap-4 min-w-[240px]">
                         <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-violet-400 border border-white/10 group-hover:bg-violet-500/10 group-hover:scale-105 transition-all">
-                           <Calendar className="w-7 h-7" />
+                          <Calendar className="w-7 h-7" />
                         </div>
                         <div>
                           <p className="text-base font-black text-white uppercase tracking-tighter">
@@ -227,34 +227,34 @@ export default function TalentDashboard() {
 
                       {/* Stats Grid */}
                       <div className="flex flex-wrap items-center gap-8 sm:gap-16">
-                         <div className="flex flex-col gap-1">
-                            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Participantes</span>
-                            <div className="flex items-center gap-2.5">
-                               <Users className="w-4 h-4 text-blue-400" />
-                               <span className="text-2xl font-black text-white tabular-nums">{session.totalParticipants}</span>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Participantes</span>
+                          <div className="flex items-center gap-2.5">
+                            <Users className="w-4 h-4 text-blue-400" />
+                            <span className="text-2xl font-black text-white tabular-nums">{session.totalParticipants}</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Duración total</span>
+                          <div className="flex items-center gap-2.5">
+                            <Activity className="w-4 h-4 text-orange-400" />
+                            <span className="text-2xl font-black text-white tabular-nums">{durationMin}m {durationSec}s</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Ganancia sesión</span>
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center">
+                              <DollarSign className="w-3.5 h-3.5 text-green-400" />
                             </div>
-                         </div>
-                         <div className="flex flex-col gap-1">
-                            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Duración total</span>
-                            <div className="flex items-center gap-2.5">
-                               <Activity className="w-4 h-4 text-orange-400" />
-                               <span className="text-2xl font-black text-white tabular-nums">{durationMin}m {durationSec}s</span>
-                            </div>
-                         </div>
-                         <div className="flex flex-col gap-1">
-                            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Ganancia sesión</span>
-                            <div className="flex items-center gap-2.5">
-                               <div className="w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center">
-                                  <DollarSign className="w-3.5 h-3.5 text-green-400" />
-                               </div>
-                               <span className="text-2xl font-black text-green-400 tabular-nums">${session.totalRevenue}</span>
-                            </div>
-                         </div>
+                            <span className="text-2xl font-black text-green-400 tabular-nums">${session.totalRevenue}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
                     <div className="hidden xl:flex flex-col items-end opacity-10 group-hover:opacity-100 group-hover:translate-x-2 transition-all">
-                       <ArrowUpRight className="w-6 h-6 text-white" />
+                      <ArrowUpRight className="w-6 h-6 text-white" />
                     </div>
                   </div>
                 );

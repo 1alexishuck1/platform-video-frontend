@@ -168,7 +168,10 @@ export default function ProfilePage() {
               ))}
               <Separator className="my-2 bg-white/5 mx-2" />
               <button 
-                onClick={() => logout()}
+                onClick={() => {
+                  logout();
+                  router.push("/login");
+                }}
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-red-400 hover:bg-red-500/10 transition-colors group"
               >
                 <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />

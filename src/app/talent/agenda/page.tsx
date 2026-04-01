@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useHydratedAuth } from "@/store/auth";
 import { useRouter } from "next/navigation";
-import { 
-  Calendar, Clock, Plus, Trash2, Save, Loader2, 
+import {
+  Calendar, Clock, Plus, Trash2, Save, Loader2,
   LayoutDashboard, Star, User, Info, CheckCircle2, Copy, Check, MousePointer2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,7 @@ interface AvailabilitySlot {
 export default function TalentAgendaPage() {
   const { user, token, isAuthenticated, isHydrated } = useHydratedAuth();
   const router = useRouter();
-  
+
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [success, setSuccess] = useState(false);
@@ -86,7 +86,7 @@ export default function TalentAgendaPage() {
 
   const applyBatch = () => {
     if (selectedBatchDays.length === 0) return;
-    
+
     // Clean days and add new batch
     const filtered = availabilities.filter(a => !selectedBatchDays.includes(a.dayOfWeek));
     const newSlots = selectedBatchDays.map(day => ({
@@ -94,7 +94,7 @@ export default function TalentAgendaPage() {
       startTime: batchStart,
       endTime: batchEnd
     }));
-    
+
     setAvailabilities([...filtered, ...newSlots]);
     setSelectedBatchDays([]);
   };
@@ -140,7 +140,7 @@ export default function TalentAgendaPage() {
   };
 
   const toggleBatchDay = (id: number) => {
-    setSelectedBatchDays(prev => 
+    setSelectedBatchDays(prev =>
       prev.includes(id) ? prev.filter(d => d !== id) : [...prev, id]
     );
   };
@@ -156,10 +156,10 @@ export default function TalentAgendaPage() {
   return (
     <div className="min-h-screen pb-20">
       <Navbar />
-      
+
       <div className="pt-24 px-4 md:px-8 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row gap-8">
-          
+
           {/* Sidebar */}
           <aside className="w-full md:w-64 space-y-4">
             <div className="p-4 rounded-3xl glass-card border border-white/10 flex flex-col items-start gap-4 h-fit">
@@ -167,15 +167,15 @@ export default function TalentAgendaPage() {
               <nav className="w-full space-y-1">
                 <Button variant="ghost" className="w-full justify-start gap-3 rounded-2xl text-muted-foreground hover:bg-white/5" onClick={() => router.push('/talent/dashboard')}><LayoutDashboard className="w-4 h-4 text-violet-500" /> Dashboard</Button>
                 <Button variant="ghost" className="w-full justify-start gap-3 rounded-2xl bg-violet-600 text-white shadow-lg shadow-violet-600/20"><Calendar className="w-4 h-4" /> Mi Agenda</Button>
-                <Button variant="ghost" className="w-full justify-start gap-3 rounded-2xl text-muted-foreground hover:bg-white/5" onClick={() => router.push('/talent/edit')}><Star className="w-4 h-4 text-violet-500" /> Perfil Público</Button>
-		<Button variant="ghost" className="w-full justify-start gap-3 rounded-2xl text-muted-foreground hover:bg-white/5" onClick={() => router.push('/profile')}><User className="w-4 h-4 text-violet-500" /> Cuenta</Button>
+                <Button variant="ghost" className="w-full justify-start gap-3 rounded-2xl text-muted-foreground hover:bg-white/5" onClick={() => router.push('/talent/edit')}><Star className="w-4 h-4 text-violet-500" />Configurar Canal</Button>
+                <Button variant="ghost" className="w-full justify-start gap-3 rounded-2xl text-muted-foreground hover:bg-white/5" onClick={() => router.push('/profile')}><User className="w-4 h-4 text-violet-500" /> Cuenta</Button>
               </nav>
             </div>
           </aside>
 
           {/* Main Content */}
           <main className="flex-1 space-y-8">
-            
+
             {/* Batch Header / Tools */}
             <div className="p-8 rounded-[2.5rem] glass-card border border-white/10 relative overflow-hidden bg-gradient-to-br from-violet-600/5 to-transparent">
               <div className="relative z-10 space-y-6">
@@ -184,8 +184,8 @@ export default function TalentAgendaPage() {
                     <h1 className="text-3xl font-bold text-white">Configuración de Agenda</h1>
                     <p className="text-muted-foreground mt-1 text-sm">Cargá tus horarios de forma masiva para ahorrar tiempo.</p>
                   </div>
-                  <Button 
-                    onClick={handleSave} 
+                  <Button
+                    onClick={handleSave}
                     disabled={loading}
                     className={cn(
                       "h-12 px-10 rounded-2xl font-bold transition-all gap-2 shadow-2xl min-w-[200px]",
@@ -202,7 +202,7 @@ export default function TalentAgendaPage() {
                     <MousePointer2 className="w-4 h-4" />
                     <span>Carga Masiva (Selector Múltiple)</span>
                   </div>
-                  
+
                   <div className="flex flex-wrap gap-3">
                     {DAYS.map(day => (
                       <button
@@ -210,16 +210,16 @@ export default function TalentAgendaPage() {
                         onClick={() => toggleBatchDay(day.id)}
                         className={cn(
                           "px-5 py-3 rounded-2xl text-sm font-bold transition-all border",
-                          selectedBatchDays.includes(day.id) 
-                            ? "bg-violet-600 border-violet-400 text-white shadow-lg scale-105" 
+                          selectedBatchDays.includes(day.id)
+                            ? "bg-violet-600 border-violet-400 text-white shadow-lg scale-105"
                             : "bg-white/5 border-white/5 text-muted-foreground hover:bg-white/10"
                         )}
                       >
                         {day.name}
                       </button>
                     ))}
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       onClick={() => setSelectedBatchDays(DAYS.map(d => d.id))}
                       className="text-white/40 hover:text-white px-2"
                     >
@@ -230,23 +230,23 @@ export default function TalentAgendaPage() {
                   <div className="flex flex-col md:flex-row items-end gap-6 pt-2">
                     <div className="space-y-2">
                       <Label className="text-xs text-gray-500 uppercase tracking-widest ml-1">Horario Inicio</Label>
-                      <Input 
-                        type="time" 
-                        value={batchStart} 
+                      <Input
+                        type="time"
+                        value={batchStart}
                         onChange={(e) => setBatchStart(e.target.value)}
                         className="h-12 w-40 bg-white/5 border-white/10 rounded-2xl focus:ring-violet-500 text-white px-4"
                       />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-gray-500 uppercase tracking-widest ml-1">Horario Fin</Label>
-                      <Input 
-                        type="time" 
-                        value={batchEnd} 
+                      <Input
+                        type="time"
+                        value={batchEnd}
                         onChange={(e) => setBatchEnd(e.target.value)}
                         className="h-12 w-40 bg-white/5 border-white/10 rounded-2xl focus:ring-violet-500 text-white px-4"
                       />
                     </div>
-                    <Button 
+                    <Button
                       onClick={applyBatch}
                       disabled={selectedBatchDays.length === 0}
                       className="h-12 px-8 rounded-2xl bg-white text-black hover:bg-gray-200 transition-all font-bold group"
@@ -274,9 +274,9 @@ export default function TalentAgendaPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         {daySlots.length > 0 && (
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => copyToAll(day.id)}
                             title="Copiar horario a todos los días"
                             className="h-10 px-3 text-muted-foreground hover:text-white hover:bg-white/5 rounded-xl gap-2 text-xs"
@@ -284,9 +284,9 @@ export default function TalentAgendaPage() {
                             <Copy className="w-4 h-4" /> Copiar a todos
                           </Button>
                         )}
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => addSlot(day.id)}
                           className="h-10 w-10 text-white bg-white/5 hover:bg-violet-600 rounded-xl transition-all"
                         >
@@ -298,8 +298,8 @@ export default function TalentAgendaPage() {
                     <div className="space-y-4 flex-1">
                       {daySlots.length === 0 ? (
                         <div className="h-full flex flex-col items-center justify-center py-10 opacity-30 text-center space-y-2 border-2 border-dashed border-white/5 rounded-3xl">
-                           <Clock className="w-8 h-8" />
-                           <span className="text-sm font-medium">Sin horarios</span>
+                          <Clock className="w-8 h-8" />
+                          <span className="text-sm font-medium">Sin horarios</span>
                         </div>
                       ) : (
                         daySlots.map((slot, idx) => {
@@ -307,23 +307,23 @@ export default function TalentAgendaPage() {
                           return (
                             <div key={`${day.id}-${idx}`} className="group flex items-center gap-4 bg-white/5 p-4 rounded-3xl border border-white/5 animate-in slide-in-from-right-2 duration-200">
                               <div className="flex-1 flex items-center gap-3">
-                                <Input 
-                                  type="time" 
-                                  value={slot.startTime} 
+                                <Input
+                                  type="time"
+                                  value={slot.startTime}
                                   onChange={(e) => updateSlot(globalIdx, "startTime", e.target.value)}
                                   className="h-10 bg-transparent border-0 focus:ring-0 text-white font-bold text-base p-0 w-20"
                                 />
                                 <span className="text-xs text-white/20 uppercase font-black">al</span>
-                                <Input 
-                                  type="time" 
-                                  value={slot.endTime} 
+                                <Input
+                                  type="time"
+                                  value={slot.endTime}
                                   onChange={(e) => updateSlot(globalIdx, "endTime", e.target.value)}
                                   className="h-10 bg-transparent border-0 focus:ring-0 text-white font-bold text-base p-0 w-20"
                                 />
                               </div>
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
+                              <Button
+                                variant="ghost"
+                                size="icon"
                                 onClick={() => removeSlot(globalIdx)}
                                 className="text-red-400 hover:bg-red-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
                               >

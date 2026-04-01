@@ -92,7 +92,7 @@ export default function TalentEditPage() {
 
   const sidebarLinks = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/talent/dashboard" },
-    { id: "edit", label: "Perfil público", icon: Star, href: "/talent/edit", active: true },
+    { id: "edit", label: "Configurar Canal 📡", icon: Star, href: "/talent/edit", active: true },
     { id: "settings", label: "Cuenta", icon: User, href: "/profile" },
   ];
 
@@ -178,8 +178,8 @@ export default function TalentEditPage() {
               <div className="relative space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h1 className="text-3xl font-bold text-white">Editar Perfil Público</h1>
-                    <p className="text-muted-foreground mt-1">Configurá cómo te ven tus fans y cuánto cuesta tu tiempo.</p>
+                    <h1 className="text-3xl font-bold text-white">Configurar Canal 📡</h1>
+                    <p className="text-muted-foreground mt-1">Configurá cómo te ven tus fans durante tus vivos.</p>
                   </div>
                   <div className="p-3 rounded-2xl bg-violet-500/10 border border-violet-500/20">
                     <Star className="w-6 h-6 text-violet-400" />

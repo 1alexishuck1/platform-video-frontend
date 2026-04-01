@@ -54,7 +54,7 @@ function FanDashboardContent() {
         }
       };
       loadBookings();
-      
+
       const poll = setInterval(loadBookings, 10000);
       return () => clearInterval(poll);
     }
@@ -63,12 +63,12 @@ function FanDashboardContent() {
   const skeleton = (
     <div className="space-y-12">
       <div className="space-y-4">
-          <div className="h-10 w-64 rounded-xl bg-white/5 animate-pulse" />
-          <div className="h-5 w-80 rounded-sm bg-white/5 animate-pulse" />
+        <div className="h-10 w-64 rounded-xl bg-white/5 animate-pulse" />
+        <div className="h-5 w-80 rounded-sm bg-white/5 animate-pulse" />
       </div>
       <div className="grid gap-6">
-          <div className="h-40 w-full rounded-3xl bg-white/5 animate-pulse" />
-          <div className="h-40 w-full rounded-3xl bg-white/5 animate-pulse" />
+        <div className="h-40 w-full rounded-3xl bg-white/5 animate-pulse" />
+        <div className="h-40 w-full rounded-3xl bg-white/5 animate-pulse" />
       </div>
     </div>
   );
@@ -86,14 +86,14 @@ function FanDashboardContent() {
   const upcoming = bookings.filter((b: any) => {
     const status = (b.status || "").toUpperCase();
     if (status === "WAITING_IN_QUEUE" || status === "IN_PROGRESS") return false;
-    
+
     const startsAtStr = b.startsAt || b.starts_at;
     if (!startsAtStr) return false;
 
     const startsAt = new Date(startsAtStr);
     const duration = b.durationSec || b.duration_sec || 0;
     const endsAt = new Date(startsAt.getTime() + duration * 1000);
-    
+
     // Only show as upcoming if it hasn't finished yet and isn't cancelled
     return endsAt > new Date() && status !== "CANCELLED";
   });
@@ -133,12 +133,20 @@ function FanDashboardContent() {
           <h1 className="text-3xl sm:text-4xl font-bold font-black">Mis sesiones</h1>
           <p className="text-muted-foreground mt-2 font-medium">Gestioná tus encuentros en vivo y tu historial.</p>
         </div>
-        <Link 
-          href="/"
-          className={cn(buttonVariants(), "btn-gradient text-white border-0 gap-2")}
-        >
-          <Video className="w-4 h-4" /> Buscar talentos
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/talent/dashboard"
+            className={cn(buttonVariants({ variant: "outline" }), "glass border-pink-500/30 text-pink-400 gap-2 h-11 px-6 rounded-xl hover:bg-pink-500/5 font-bold transition-all")}
+          >
+            <Zap className="w-4 h-4 fill-pink-400/20" /> ¡Transmitir en vivo!
+          </Link>
+          <Link
+            href="/"
+            className={cn(buttonVariants(), "btn-gradient text-white border-0 gap-2 h-11 px-6 rounded-xl")}
+          >
+            <Video className="w-4 h-4" /> Buscar talentos
+          </Link>
+        </div>
       </div>
 
       <div className="space-y-12">
@@ -154,32 +162,32 @@ function FanDashboardContent() {
                 <div key={booking.id} className="p-1 rounded-3xl bg-gradient-to-r from-violet-600/20 to-pink-600/20">
                   <div className="glass rounded-[1.4rem] p-6 flex flex-col md:flex-row items-center gap-6">
                     <div className="relative">
-                      <img 
-                        src={booking.talent?.avatarUrl || booking.talent?.avatar_url} 
+                      <img
+                        src={booking.talent?.avatarUrl || booking.talent?.avatar_url}
                         className="w-20 h-20 rounded-2xl object-cover border-2 border-white/5"
                       />
                       <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded shadow-xl uppercase">LIVE</div>
                     </div>
-                    
+
                     <div className="flex-1 text-center md:text-left">
                       <h3 className="text-2xl font-black mb-1">{booking.talent?.stageName || booking.talent?.stage_name}</h3>
                       <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                         <span className="text-violet-300 font-bold flex items-center gap-1.5">
-                            <Users className="w-4 h-4" /> Posición: {booking.status === "in_progress" ? "¡Tu turno!" : "En espera..."}
-                         </span>
-                         <span className="text-muted-foreground text-sm flex items-center gap-1.5 border-l border-white/10 pl-4">
-                            <Clock className="w-4 h-4" /> {Math.floor((booking.durationSec || booking.duration_sec || 0) / 60)} min contratados
-                         </span>
+                        <span className="text-violet-300 font-bold flex items-center gap-1.5">
+                          <Users className="w-4 h-4" /> Posición: {booking.status === "in_progress" ? "¡Tu turno!" : "En espera..."}
+                        </span>
+                        <span className="text-muted-foreground text-sm flex items-center gap-1.5 border-l border-white/10 pl-4">
+                          <Clock className="w-4 h-4" /> {Math.floor((booking.durationSec || booking.duration_sec || 0) / 60)} min contratados
+                        </span>
                       </div>
                     </div>
 
                     <div className="shrink-0 w-full md:w-auto">
                       <Link href={`/bookings/${booking.id}/call`}>
-                        <Button 
+                        <Button
                           className={cn(
                             "w-full h-14 px-8 rounded-2xl font-black text-lg transition-all",
-                            booking.status === "in_progress" 
-                              ? "bg-red-500 hover:bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)] animate-bounce" 
+                            booking.status === "in_progress"
+                              ? "bg-red-500 hover:bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)] animate-bounce"
                               : "btn-gradient text-white border-0 opacity-80"
                           )}
                         >
@@ -198,15 +206,15 @@ function FanDashboardContent() {
         {upcoming.length > 0 && (
           <section className="animate-in fade-in slide-in-from-bottom-4">
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-violet-400" /> 
+              <Calendar className="w-5 h-5 text-violet-400" />
               Videollamadas agendadas ({upcoming.length})
             </h2>
             <div className="grid gap-4">
               {upcoming.map((booking) => (
                 <Link href={`/bookings/${booking.id}`} key={booking.id} className="block group">
                   <div className="glass card-hover rounded-2xl p-4 md:p-5 flex flex-col sm:flex-row items-center gap-4 md:gap-5 border border-white/5">
-                    <img 
-                      src={booking.talent?.avatarUrl || booking.talent?.avatar_url} 
+                    <img
+                      src={booking.talent?.avatarUrl || booking.talent?.avatar_url}
                       className="w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-card shadow-sm object-cover"
                     />
                     <div className="flex-1 text-center sm:text-left">
@@ -224,11 +232,11 @@ function FanDashboardContent() {
                         </span>
                       </div>
                     </div>
-                    
+
                     <div className="flex flex-col items-center sm:items-end gap-3 mt-4 sm:mt-0 shrink-0">
                       <BookingStatusBadge status={booking.status} />
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
                         className="text-violet-400 hover:text-violet-300 hover:bg-violet-500/10 w-full sm:w-auto"
                       >
@@ -245,29 +253,37 @@ function FanDashboardContent() {
         {/* Empty state for new users */}
         {inQueue.length === 0 && upcoming.length === 0 && !isLoading && (
           <div className="glass rounded-[2.5rem] p-16 text-center border-dashed border-2 border-white/5 animate-in fade-in zoom-in-95 duration-500">
-             <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mx-auto mb-6 shadow-2xl">
-               <Video className="w-10 h-10 text-muted-foreground/30" />
-             </div>
-             <h3 className="text-2xl font-bold mb-2">No tenés sesiones activas</h3>
-             <p className="text-muted-foreground max-w-sm mx-auto mb-8 font-medium leading-relaxed">
-               Unite a la cola de tu talento favorito cuando esté en vivo para empezar a hablar.
-             </p>
-             <Link 
-               href="/"
-               className={cn(buttonVariants({ size: "lg" }), "btn-gradient text-white border-0 px-10 h-14 rounded-2xl font-bold shadow-xl hover:scale-105 transition-all")}
-             >
-               Explorar talentos en vivo
-             </Link>
+            <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mx-auto mb-6 shadow-2xl">
+              <Video className="w-10 h-10 text-muted-foreground/30" />
+            </div>
+            <h3 className="text-2xl font-bold mb-2">No tenés sesiones activas</h3>
+            <p className="text-muted-foreground max-w-sm mx-auto mb-8 font-medium leading-relaxed">
+              Unite a la cola de tu talento favorito cuando esté en vivo para empezar a hablar.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                href="/"
+                className={cn(buttonVariants({ size: "lg" }), "btn-gradient text-white border-0 px-10 h-14 rounded-2xl font-bold shadow-xl hover:scale-105 transition-all w-full sm:w-auto")}
+              >
+                Explorar talentos en vivo
+              </Link>
+              <Link
+                href="/talent/dashboard"
+                className={cn(buttonVariants({ size: "lg", variant: "outline" }), "glass border-pink-500/30 text-pink-400 px-10 h-14 rounded-2xl font-black hover:bg-pink-500/5 transition-all w-full sm:w-auto shadow-[0_0_20px_rgba(236,72,153,0.1)]")}
+              >
+                Transmitir ahora 🚀
+              </Link>
+            </div>
           </div>
         )}
 
         {/* Historial */}
         <section className="pt-8 border-t border-white/5">
           <h2 className="text-xl font-bold mb-8 flex items-center gap-3 text-muted-foreground/60">
-            <Clock className="w-5 h-5" /> 
+            <Clock className="w-5 h-5" />
             Historial de sesiones ({past.length})
           </h2>
-          
+
           <div className="grid grid-cols-1 gap-4">
             {past.map((booking: any) => (
               <div key={booking.id} className="glass rounded-2xl p-4 md:p-6 flex flex-col sm:flex-row items-center gap-4 border border-white/5 opacity-70 hover:opacity-100 transition-opacity">
@@ -297,12 +313,12 @@ export default function FanDashboard() {
         <Suspense fallback={
           <div className="space-y-12">
             <div className="space-y-4">
-               <Skeleton className="h-10 w-64 rounded-xl" />
-               <Skeleton className="h-5 w-80 rounded-xl" />
+              <Skeleton className="h-10 w-64 rounded-xl" />
+              <Skeleton className="h-5 w-80 rounded-xl" />
             </div>
             <div className="grid gap-6">
-               <Skeleton className="h-32 w-full rounded-3xl" />
-               <Skeleton className="h-32 w-full rounded-3xl" />
+              <Skeleton className="h-32 w-full rounded-3xl" />
+              <Skeleton className="h-32 w-full rounded-3xl" />
             </div>
           </div>
         }>

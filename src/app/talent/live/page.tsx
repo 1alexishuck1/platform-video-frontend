@@ -474,7 +474,15 @@ export default function TalentLiveStudio() {
                            </div>
                         </div>
                         {!activeBooking && i === 0 && (
-                          <Button size="sm" onClick={() => handleAtender(item.id)} className="w-full mt-4 bg-violet-600 hover:bg-violet-500 h-10 rounded-xl text-[11px] font-black active:scale-95">Llamar ahora</Button>
+                          <Button 
+                            size="sm" 
+                            onClick={() => handleAtender(item.id)} 
+                            disabled={isCalling}
+                            className="w-full mt-4 bg-violet-600 hover:bg-violet-500 h-10 rounded-xl text-[11px] font-black active:scale-95"
+                          >
+                            {isCalling ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : null}
+                            Llamar ahora
+                          </Button>
                         )}
                       </div>
                     ))

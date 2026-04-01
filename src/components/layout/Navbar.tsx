@@ -27,7 +27,6 @@ import { useAuthStore, useHydratedAuth } from "@/store/auth";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "/", label: "Talentos" },
   { href: "/about", label: "Acerca de" },
 ];
 
@@ -38,7 +37,7 @@ export function Navbar() {
 
   const handleLogout = () => {
     logout();
-    router.push("/");
+    router.push("/login");
   };
 
   const getInitials = (name: string) =>
@@ -84,31 +83,31 @@ export function Navbar() {
         <div className="flex-1 flex justify-end items-center gap-3">
           <div className="hidden md:flex items-center gap-3">
             {!isHydrated ? (
-               <div className="w-20 h-8 rounded-md bg-white/5 animate-pulse" />
+              <div className="w-20 h-8 rounded-md bg-white/5 animate-pulse" />
             ) : isAuthenticated && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center gap-2 rounded-full p-1 hover:bg-white/5 transition-colors">
-                    <Avatar className="w-8 h-8 border border-violet-500/30">
-                      <AvatarFallback className="bg-violet-900/50 text-violet-300 text-xs font-semibold">
-                        {getInitials(user.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm text-muted-foreground max-w-[120px] truncate">
-                      {user.name}
-                    </span>
+                  <Avatar className="w-8 h-8 border border-violet-500/30">
+                    <AvatarFallback className="bg-violet-900/50 text-violet-300 text-xs font-semibold">
+                      {getInitials(user.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm text-muted-foreground max-w-[120px] truncate">
+                    {user.name}
+                  </span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 bg-card border-white/10 p-2">
                   <div className="px-2 py-1.5 mb-1">
                     <p className="text-[10px] font-black uppercase text-violet-400 tracking-widest">Mi Actividad</p>
                   </div>
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     render={
                       <Link href="/dashboard" className="flex items-center gap-3 cursor-pointer w-full px-2 py-2 rounded-xl transition-colors hover:bg-white/5">
                         <Calendar className="w-4 h-4 text-violet-400" /> Mis sesiones
                       </Link>
                     }
                   />
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     render={
                       <Link href="/profile" className="flex items-center gap-3 cursor-pointer w-full px-2 py-2 rounded-xl transition-colors hover:bg-white/5">
                         <User className="w-4 h-4 text-violet-400" /> Mi perfil
@@ -117,21 +116,23 @@ export function Navbar() {
                   />
 
                   <DropdownMenuSeparator className="bg-white/5 my-2" />
-                  
+
                   <div className="px-2 py-1.5 mb-1">
-                    <p className="text-[10px] font-black uppercase text-pink-400 tracking-widest">Creador</p>
+                    <p className="text-[10px] font-black uppercase text-pink-400 tracking-widest flex items-center gap-2">
+                      <LayoutDashboard className="w-3 h-3" /> Panel de Control
+                    </p>
                   </div>
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     render={
-                      <Link href="/talent/dashboard" className="flex items-center gap-3 cursor-pointer w-full px-2 py-2 rounded-xl transition-colors hover:bg-white/5">
-                        <LayoutDashboard className="w-4 h-4 text-pink-400" /> Modo Host
+                      <Link href="/talent/dashboard" className="flex items-center gap-3 cursor-pointer w-full px-2 py-2 rounded-xl transition-colors hover:bg-white/5 font-bold text-pink-400">
+                        <LayoutDashboard className="w-4 h-4 text-pink-400" /> ¡Transmitir en vivo!
                       </Link>
                     }
                   />
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     render={
-                      <Link href="/talent/profile" className="flex items-center gap-3 cursor-pointer w-full px-2 py-2 rounded-xl transition-colors hover:bg-white/5">
-                        <User className="w-4 h-4 text-pink-500" /> Vista pública
+                      <Link href="/talent/edit" className="flex items-center gap-3 cursor-pointer w-full px-2 py-2 rounded-xl transition-colors hover:bg-white/5">
+                        <User className="w-4 h-4 text-pink-500" />Configurar Canal
                       </Link>
                     }
                   />
@@ -146,13 +147,13 @@ export function Navbar() {
               </DropdownMenu>
             ) : (
               <>
-                <Link 
+                <Link
                   href="/login"
                   className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "text-muted-foreground hover:text-foreground")}
                 >
                   Iniciar sesión
                 </Link>
-                <Link 
+                <Link
                   href="/register"
                   className={cn(buttonVariants({ size: "sm" }), "btn-gradient text-white border-0 shadow-lg")}
                 >
@@ -165,12 +166,12 @@ export function Navbar() {
 
         {/* Mobile menu - Show only on small screens */}
         <Sheet>
-            <SheetTrigger render={
-              <Button variant="ghost" size="icon" className="md:hidden hover:bg-white/10 p-2 rounded-xl transition-colors">
-                <Menu className="w-6 h-6" />
-                <span className="sr-only">Abrir menú</span>
-              </Button>
-            } />
+          <SheetTrigger render={
+            <Button variant="ghost" size="icon" className="md:hidden hover:bg-white/10 p-2 rounded-xl transition-colors">
+              <Menu className="w-6 h-6" />
+              <span className="sr-only">Abrir menú</span>
+            </Button>
+          } />
           <SheetContent side="right" className="w-[85%] max-w-sm glass border-l border-white/10 p-0 flex flex-col shadow-2xl overflow-hidden" showCloseButton={false}>
             {/* Header */}
             <div className="p-6 border-b border-white/5 flex items-center justify-between bg-black/40">
@@ -198,8 +199,8 @@ export function Navbar() {
                       href={link.href}
                       className={cn(
                         "flex items-center gap-3 px-3 py-3 rounded-xl transition-all font-medium",
-                        pathname === link.href 
-                          ? "bg-violet-600/10 text-violet-300 border border-violet-500/20" 
+                        pathname === link.href
+                          ? "bg-violet-600/10 text-violet-300 border border-violet-500/20"
                           : "text-muted-foreground hover:bg-white/5 hover:text-white"
                       )}
                     >
@@ -208,17 +209,22 @@ export function Navbar() {
                   ))}
                 </div>
               </div>
-              
+
               {/* Account Section */}
               {isAuthenticated && user && (
                 <div className="space-y-4 pt-4 border-t border-white/5">
-                  <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest px-2">Mi Cuenta</p>
+                  <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest px-2 flex items-center gap-2">
+                    <LayoutDashboard className="w-3 h-3" /> Panel de Control
+                  </p>
                   <div className="grid gap-1">
                     <Link href="/dashboard" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
                       <Calendar className="w-5 h-5 text-violet-400" /> Mis sesiones
                     </Link>
-                    <Link href="/talent/dashboard" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
-                      <LayoutDashboard className="w-5 h-5 text-pink-400" /> Modo Host
+                    <Link href="/talent/dashboard" className="flex items-center gap-3 px-3 py-3 rounded-xl text-pink-400 hover:bg-pink-400/5 hover:text-pink-300 transition-all font-bold">
+                      <LayoutDashboard className="w-5 h-5 text-pink-400" /> ¡Transmitir en vivo!
+                    </Link>
+                    <Link href="/talent/edit" className="flex items-center gap-3 px-3 py-3 rounded-xl text-pink-400 hover:bg-pink-400/5 hover:text-pink-300 transition-all font-bold">
+                      <User className="w-5 h-5 text-pink-400" />Configurar Canal
                     </Link>
                     <Link href="/profile" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
                       <User className="w-5 h-5 text-blue-400" /> Mi perfil
@@ -239,13 +245,13 @@ export function Navbar() {
                   </Button>
                 ) : (
                   <div className="space-y-3 px-2">
-                    <Link 
+                    <Link
                       href="/login"
                       className={cn(buttonVariants({ variant: "outline" }), "w-full border-white/10 h-12 rounded-xl bg-white/5")}
                     >
                       Iniciar sesión
                     </Link>
-                    <Link 
+                    <Link
                       href="/register"
                       className={cn(buttonVariants(), "w-full btn-gradient border-0 h-12 shadow-lg shadow-violet-500/20 rounded-xl")}
                     >

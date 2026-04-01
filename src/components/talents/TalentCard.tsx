@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, MouseEvent } from "react";
 import Link from "next/link";
 import { Star, Clock, Zap, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,10 @@ interface TalentCardProps {
 }
 
 export function TalentCard({ talent }: TalentCardProps) {
-  // Use sessionDurationMin if available (real API) or fallback to session_duration_sec (mock)
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+
   const durationMinutes = talent.sessionDurationMin || Math.floor((talent.session_duration_sec || 0) / 60);
   const stageName = talent.stageName || talent.stage_name;
   const priceUsd = talent.priceUsd || talent.price_usd;
@@ -24,77 +27,109 @@ export function TalentCard({ talent }: TalentCardProps) {
     setAvatarUrl("https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=400&h=400&fit=crop");
   };
 
-  return (
-    <Link href={`/talents/${talent.id}`} className="block group">
-      <div className="glass card-hover rounded-2xl overflow-hidden h-full flex flex-col">
-        {/* Avatar area */}
-        <div className="relative h-40 sm:h-48 bg-gradient-to-br from-violet-900/30 to-pink-900/20 flex items-center justify-center overflow-hidden">
-          <img
-            src={avatarUrl}
-            alt={stageName}
-            onError={handleError}
-            className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white/10 group-hover:scale-105 transition-transform duration-300 object-cover"
-          />
-          {/* Category badge */}
-          {talent.category && (
-            <div className="absolute top-3 left-3">
-              <Badge className="bg-violet-500/20 text-violet-300 border border-violet-500/30 text-[10px] sm:text-xs">
-                {talent.category}
-              </Badge>
-            </div>
-          )}
-          {/* Rating */}
-          {talent.rating && (
-            <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/40 rounded-full px-2 py-1">
-              <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-yellow-400 text-yellow-400" />
-              <span className="text-[10px] sm:text-xs font-semibold text-white">{talent.rating || 4.9}</span>
-            </div>
-          )}
-          {/* Live indicator */}
-          {talent.isLive && (
-            <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-red-500/90 text-white px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest shadow-lg animate-pulse">
-              <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-white rounded-full" />
-              En vivo
-            </div>
-          )}
-        </div>
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    setMousePos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
 
-        {/* Info */}
-        <div className="p-4 sm:p-5 flex flex-col flex-1 gap-2.5 sm:gap-3">
-          <div>
-            <h3 className="font-bold text-lg text-white group-hover:text-violet-300 transition-colors flex items-center gap-1.5">
-              {stageName}
-              {talent.isVerified && (
-                <CheckCircle2 className="w-4 h-4 text-blue-400 fill-blue-400/10" />
-              )}
-            </h3>
-            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{talent.bio}</p>
+  return (
+    <Link 
+      href={`/talents/${talent.id}`} 
+      className="block group"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div 
+        ref={cardRef}
+        className="glass rounded-3xl overflow-hidden h-full flex flex-col relative border border-white/5 transition-all duration-500 group-hover:border-violet-500/30 group-hover:shadow-[0_0_40px_rgba(139,92,246,0.1)]"
+      >
+        {/* Shiny border spotlight effect */}
+        <div 
+          className="absolute inset-0 z-10 pointer-events-none transition-opacity duration-500 opacity-0 group-hover:opacity-100"
+          style={{
+            background: `radial-gradient(400px circle at ${mousePos.x}px ${mousePos.y}px, rgba(139, 92, 246, 0.12), transparent 40%)`,
+          }}
+        />
+
+        {/* Avatar & Header Area */}
+        <div className="relative h-44 sm:h-52 bg-gradient-to-b from-[#0a0a0c] to-[#050505] flex items-center justify-center overflow-hidden border-b border-white/5">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(139,92,246,0.15),transparent_70%)]" />
+          
+          {/* Main Avatar */}
+          <div className="relative z-20 group-hover:scale-110 transition-transform duration-700 ease-out">
+            <div className="absolute inset-0 bg-violet-600/20 rounded-full blur-2xl group-hover:bg-violet-600/40 transition-all duration-700" />
+            <img
+              src={avatarUrl}
+              alt={stageName}
+              onError={handleError}
+              className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-2 border-white/10 p-1 object-cover relative z-20 shadow-2xl"
+            />
           </div>
 
-          {/* Stats */}
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              <span>{durationMinutes} min</span>
-            </div>
-            {talent.total_sessions && (
-              <div className="flex items-center gap-1">
-                <Zap className="w-3 h-3" />
-                <span>{talent.total_sessions} sesiones</span>
+          {/* Overlays */}
+          <div className="absolute top-4 left-4 z-30 flex flex-col gap-2">
+            {talent.category && (
+              <Badge className="bg-white/5 text-white/70 border border-white/10 text-[9px] uppercase tracking-widest font-black px-3 py-1 rounded-full backdrop-blur-md">
+                {talent.category}
+              </Badge>
+            )}
+            {talent.isLive && (
+              <div className="flex items-center gap-1.5 bg-red-500 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg animate-pulse">
+                <div className="w-1 h-1 bg-white rounded-full" />
+                Live
               </div>
             )}
           </div>
 
-          {/* Price + CTA */}
-          <div className="mt-auto flex items-center justify-between pt-3 border-t border-white/5">
-            <div>
-              <span className="text-2xl font-bold gradient-text">${priceUsd}</span>
-              <span className="text-xs text-muted-foreground ml-1">USD</span>
+          <div className="absolute top-4 right-4 z-30">
+            <div className="glass-card border-white/10 px-3 py-1.5 rounded-2xl flex items-center gap-2 backdrop-blur-xl">
+               <span className="text-sm font-black text-white">${priceUsd}</span>
+               <span className="text-[10px] font-bold text-white/40 tracking-tighter">USD</span>
             </div>
-            <div
-              className={cn(buttonVariants({ size: "sm" }), "btn-gradient text-white border-0 text-xs inline-flex")}
-            >
-              {talent.isLive ? "En vivo" : "Ver perfil"}
+          </div>
+
+          {talent.rating && (
+            <div className="absolute bottom-4 right-4 z-30 flex items-center gap-1.5 bg-black/60 rounded-xl px-2.5 py-1 backdrop-blur-md border border-white/5">
+              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+              <span className="text-xs font-black text-white">{talent.rating}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Info Area */}
+        <div className="p-6 flex flex-col flex-1 gap-4 relative z-20">
+          <div>
+            <h3 className="text-xl font-black text-white group-hover:text-violet-400 transition-colors flex items-center gap-2 tracking-tight">
+              {stageName}
+              {talent.isVerified && (
+                <CheckCircle2 className="w-5 h-5 text-blue-400 fill-blue-400/10" />
+              )}
+            </h3>
+            <p className="text-sm text-white/50 mt-2 line-clamp-2 leading-relaxed font-medium">
+              {talent.bio || "Sumate a una sesión exclusiva y charlemos en vivo."}
+            </p>
+          </div>
+
+          <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
+            <div className="flex items-center gap-4 text-[11px] font-black uppercase tracking-widest text-white/30">
+              <div className="flex items-center gap-1.5 group-hover:text-violet-400 transition-colors">
+                <Clock className="w-3.5 h-3.5" />
+                <span>{durationMinutes} Min</span>
+              </div>
+              <div className="w-1 h-1 bg-white/10 rounded-full" />
+              <div className="flex items-center gap-1.5 group-hover:text-violet-400 transition-colors">
+                <Zap className="w-3.5 h-3.5" />
+                <span>{talent.total_sessions || 0} Vivos</span>
+              </div>
+            </div>
+            
+            <div className="text-violet-400 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300">
+               <Clock className="w-5 h-5 rotate-[-45deg]" />
             </div>
           </div>
         </div>
