@@ -116,7 +116,7 @@ export function TalentCard({ talent }: TalentCardProps) {
           </div>
 
           <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
-            <div className="flex items-center gap-4 text-[11px] font-black uppercase tracking-widest text-white/30">
+            <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-white/30">
               <div className="flex items-center gap-1.5 group-hover:text-violet-400 transition-colors">
                 <Clock className="w-3.5 h-3.5" />
                 <span>{durationMinutes} Min</span>
@@ -128,7 +128,7 @@ export function TalentCard({ talent }: TalentCardProps) {
               </div>
             </div>
             
-            <div className="text-violet-400 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300">
+            <div className="text-violet-400 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 hidden sm:block">
                <Clock className="w-5 h-5 rotate-[-45deg]" />
             </div>
           </div>

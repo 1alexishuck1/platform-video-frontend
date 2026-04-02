@@ -103,7 +103,7 @@ export default function IndexPage() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mt-12 mb-20 animate-pulse">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mt-12 mb-20 animate-pulse">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="glass rounded-2xl h-[350px] flex flex-col p-4 border border-white/5">
                 <div className="h-40 rounded-xl bg-white/5 mb-4" />
@@ -130,7 +130,7 @@ export default function IndexPage() {
                   <p className="text-muted-foreground font-medium text-base sm:text-lg">No hay talentos en vivo en este momento. ¡Volvé pronto!</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                   {liveNow.map((talent) => (
                     <TalentCard key={talent.id} talent={talent} />
                   ))}
@@ -145,7 +145,7 @@ export default function IndexPage() {
                 <h2 className="text-2xl font-bold text-white uppercase tracking-tighter opacity-60">Explorar offline</h2>
               </div>
 
-              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 opacity-80">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 opacity-80">
                 {offline.map((talent) => (
                   <TalentCard key={talent.id} talent={talent} />
                 ))}

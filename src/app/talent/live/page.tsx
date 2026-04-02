@@ -22,6 +22,8 @@ import {
   DialogTitle, DialogFooter, DialogDescription 
 } from "@/components/ui/dialog";
 
+// Main Talent Live Studio page with real-time video, queue management and chat features.
+// Camera is draggable in PiP mode with strict constraints to keep it visible on mobile.
 export default function TalentLiveStudio() {
   const router = useRouter();
   const { user, isAuthenticated, isHydrated } = useHydratedAuth();
@@ -65,7 +67,7 @@ export default function TalentLiveStudio() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const peerRef = useRef<any>(null);
-  const videoContainerRef = useRef(null);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
 
   // Sounds
   const playSound = (type: 'joined' | 'queue') => {
@@ -429,12 +431,12 @@ export default function TalentLiveStudio() {
                      dragElastic={0}
                      dragMomentum={false}
                      animate={pinnedParticipant === "remote" ? { x: 0, y: 0 } : {}}
-                     whileDrag={{ scale: 1.05, opacity: 0.9, zIndex: 50 }}
+                     whileDrag={{ scale: 1.05, opacity: 0.9, zIndex: 100 }}
                      className={cn(
                        "relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl overflow-hidden",
                        layoutMode === "grid" 
-                         ? "w-full h-full transition-all duration-500" 
-                         : pinnedParticipant === "remote" ? "w-full h-full transition-all duration-500" : "absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-24 h-32 sm:w-40 sm:h-56 z-20 cursor-move"
+                         ? "w-full h-full" 
+                         : pinnedParticipant === "remote" ? "w-full h-full" : "absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-24 h-32 sm:w-40 sm:h-56 z-20 cursor-move touch-none"
                      )}
                      onClick={() => layoutMode === "pip" && pinnedParticipant === "local" && setPinnedParticipant("remote")}
                    >
@@ -464,12 +466,12 @@ export default function TalentLiveStudio() {
                      dragElastic={0}
                      dragMomentum={false}
                      animate={pinnedParticipant === "local" ? { x: 0, y: 0 } : {}}
-                     whileDrag={{ scale: 1.05, opacity: 0.9, zIndex: 50 }}
+                     whileDrag={{ scale: 1.05, opacity: 0.9, zIndex: 100 }}
                      className={cn(
                        "relative rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl overflow-hidden",
                        layoutMode === "grid" 
-                         ? "w-full h-full transition-all duration-500" 
-                         : pinnedParticipant === "local" ? "w-full h-full transition-all duration-500" : "absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-24 h-32 sm:w-40 sm:h-56 z-20 cursor-move"
+                         ? "w-full h-full" 
+                         : pinnedParticipant === "local" ? "w-full h-full" : "absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-24 h-32 sm:w-40 sm:h-56 z-20 cursor-move touch-none"
                      )}
                      onClick={() => layoutMode === "pip" && pinnedParticipant === "remote" && setPinnedParticipant("local")}
                    >
@@ -497,19 +499,6 @@ export default function TalentLiveStudio() {
                 </motion.div>
               )}
             </AnimatePresence>
-
-            {activeBooking && (
-                <motion.div 
-                   drag 
-                   dragConstraints={videoContainerRef}
-                   dragElastic={0.1}
-                   dragMomentum={false}
-                   whileDrag={{ scale: 1.05, opacity: 0.9 }}
-                   className="absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-24 h-32 sm:w-40 sm:h-56 bg-black rounded-2xl border-2 border-white/10 overflow-hidden shadow-2xl z-20 cursor-move touch-none"
-                >
-                   <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover scale-x-[-1]" />
-                </motion.div>
-            )}
           </div>
 
           {/* Mini-Queue for Mobile (Horizontal List) */}

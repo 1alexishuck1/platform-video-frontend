@@ -16,6 +16,8 @@ import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
+// Room where fans join for the scheduled video call session.
+// Includes a draggable local preview with constraints to prevent it from escaping the viewport.
 export default function VideoCallRoom() {
   const { id } = useParams();
   const router = useRouter();
@@ -42,6 +44,7 @@ export default function VideoCallRoom() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const videoGridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isHydrated && !isAuthenticated) router.push("/login");
@@ -406,7 +409,7 @@ export default function VideoCallRoom() {
           </div>
 
           {/* Video Grid */}
-          <div className="flex-1 relative flex items-center justify-center bg-[#050505]">
+          <div ref={videoGridRef} className="flex-1 relative flex items-center justify-center bg-[#050505] overflow-hidden">
             {/* Main Stage */}
             <div className="absolute inset-0 flex items-center justify-center">
               {isConnecting ? (
@@ -511,10 +514,11 @@ export default function VideoCallRoom() {
             {booking.status === "IN_PROGRESS" && (
               <motion.div 
                 drag
-                dragConstraints={{ left: -300, right: 300, top: -500, bottom: 300 }}
-                dragElastic={0.1}
-                whileDrag={{ scale: 1.05, cursor: "grabbing" }}
-                className="absolute bottom-32 right-6 sm:bottom-28 sm:right-8 w-32 h-44 sm:w-44 sm:h-64 bg-gray-900 rounded-[2rem] overflow-hidden shadow-2xl border-2 border-white/10 z-10 group touch-none"
+                dragConstraints={videoGridRef}
+                dragElastic={0}
+                dragMomentum={false}
+                whileDrag={{ scale: 1.05, cursor: "grabbing", zIndex: 100 }}
+                className="absolute bottom-32 right-6 sm:bottom-28 sm:right-8 w-32 h-44 sm:w-44 sm:h-64 bg-gray-900 rounded-[2rem] overflow-hidden shadow-2xl border-2 border-white/10 z-10 group touch-none cursor-move"
               >
                 {camOff || !mediaStream ? (
                   <div className="w-full h-full flex flex-col items-center justify-center bg-gray-950">
