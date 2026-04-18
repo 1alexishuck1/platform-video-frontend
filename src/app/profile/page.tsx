@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useHydratedAuth } from "@/store/auth";
 import { useRouter } from "next/navigation";
 import { 
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/common/UserAvatar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Navbar } from "@/components/layout/Navbar";
@@ -32,6 +32,7 @@ export default function ProfilePage() {
     email: "",
     avatarUrl: ""
   });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isHydrated && !isAuthenticated) {
@@ -117,6 +118,24 @@ export default function ProfilePage() {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("La imagen es demasiado pesada (máx 2MB)");
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setFormData(prev => ({ ...prev, avatarUrl: base64String }));
+        toast.info("Imagen seleccionada. No olvides guardar los cambios.");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const menuItems = [
     { id: "general", label: "General", icon: User },
     { id: "notifications", label: "Notificaciones", icon: Bell },
@@ -185,15 +204,25 @@ export default function ProfilePage() {
           <aside className="w-full md:w-64 space-y-6">
             <div className="p-6 rounded-3xl glass-card border border-white/10 flex flex-col items-center text-center">
               <div className="relative group mb-4">
-                <Avatar className="w-24 h-24 border-2 border-violet-500/50 shadow-2xl transition-transform group-hover:scale-105 duration-300">
-                  <AvatarImage src={formData.avatarUrl} alt={formData.name} className="object-cover" />
-                  <AvatarFallback className="bg-gradient-to-br from-violet-600 to-indigo-700 text-white text-2xl font-bold">
-                    {getInitials(user.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer">
+                <UserAvatar 
+                  src={formData.avatarUrl}
+                  name={formData.name}
+                  size="xl"
+                  className="shadow-2xl transition-transform group-hover:scale-105 duration-300"
+                />
+                <div 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer z-10"
+                >
                   <Camera className="w-6 h-6 text-white" />
                 </div>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleFileChange} 
+                  accept="image/*" 
+                  className="hidden" 
+                />
               </div>
               <h2 className="font-bold text-xl text-white truncate w-full">{user.name}</h2>
               <div className="flex items-center gap-2 mt-2">

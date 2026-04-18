@@ -92,7 +92,7 @@ export function Navbar() {
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center gap-2 rounded-full p-1 hover:bg-white/5 transition-colors">
                     <UserAvatar 
-                      src={user.avatarUrl || user.avatar_url}
+                      src={user.avatarUrl}
                       name={user.name}
                       size="sm"
                     />
@@ -275,7 +275,7 @@ export function Navbar() {
             {isAuthenticated && user && (
               <div className="p-6 bg-white/5 border-t border-white/5 flex items-center gap-3">
                 <UserAvatar 
-                  src={user.avatarUrl || user.avatar_url}
+                  src={user.avatarUrl}
                   name={user.name}
                   size="md"
                 />
