@@ -2,11 +2,12 @@
 
 import { useState, useRef, MouseEvent } from "react";
 import Link from "next/link";
-import { Star, Clock, Zap, CheckCircle2 } from "lucide-react";
+import { Star, Clock, Zap, CheckCircle2, Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TalentProfile } from "@/types";
+import { UserAvatar } from "@/components/common/UserAvatar";
 
 interface TalentCardProps {
   talent: TalentProfile;
@@ -20,12 +21,7 @@ export function TalentCard({ talent }: TalentCardProps) {
   const durationMinutes = talent.sessionDurationMin || Math.floor((talent.session_duration_sec || 0) / 60);
   const stageName = talent.stageName || talent.stage_name;
   const priceUsd = talent.priceUsd || talent.price_usd;
-  const rawAvatar = talent.avatarUrl || talent.avatar_url;
-  const [avatarUrl, setAvatarUrl] = useState(rawAvatar || "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=400&h=400&fit=crop");
-
-  const handleError = () => {
-    setAvatarUrl("https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=400&h=400&fit=crop");
-  };
+  const avatarUrl = talent.avatarUrl || talent.avatar_url;
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!cardRef.current) return;
@@ -63,11 +59,11 @@ export function TalentCard({ talent }: TalentCardProps) {
           {/* Main Avatar */}
           <div className="relative z-20 group-hover:scale-110 transition-transform duration-700 ease-out">
             <div className="absolute inset-0 bg-violet-600/20 rounded-full blur-2xl group-hover:bg-violet-600/40 transition-all duration-700" />
-            <img
+            <UserAvatar 
               src={avatarUrl}
-              alt={stageName}
-              onError={handleError}
-              className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-2 border-white/10 p-1 object-cover relative z-20 shadow-2xl"
+              name={stageName}
+              size="2xl"
+              className="relative z-20 shadow-2xl"
             />
           </div>
 
@@ -87,9 +83,9 @@ export function TalentCard({ talent }: TalentCardProps) {
           </div>
 
           <div className="absolute top-4 right-4 z-30">
-            <div className="glass-card border-white/10 px-3 py-1.5 rounded-2xl flex items-center gap-2 backdrop-blur-xl">
-               <span className="text-sm font-black text-white">${priceUsd}</span>
-               <span className="text-[10px] font-bold text-white/40 tracking-tighter">USD</span>
+            <div className="glass-card border-white/10 px-3 py-1.5 rounded-xl flex items-center gap-1.5 backdrop-blur-xl">
+               <Wallet className="w-3.5 h-3.5 text-violet-400" />
+               <span className="text-sm font-black text-white">{priceUsd.toLocaleString("es-AR")}</span>
             </div>
           </div>
 

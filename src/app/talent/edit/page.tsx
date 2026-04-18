@@ -228,7 +228,7 @@ export default function TalentEditPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label className="text-gray-400 ml-1 flex items-center gap-2">
-                        <DollarSign className="w-3 h-3" /> Precio por Sesión (USD)
+                        <DollarSign className="w-3 h-3" /> Precio por Sesión (Tokens)
                       </Label>
                       <Input
                         type="number"
@@ -248,6 +248,18 @@ export default function TalentEditPage() {
                         onChange={(e) => setFormData({ ...formData, sessionDurationMin: parseInt(e.target.value) })}
                         className="h-12 bg-white/5 border-white/10 rounded-2xl focus:ring-violet-500"
                       />
+                    </div>
+                  </div>
+
+                  <div className="bg-violet-900/20 border border-violet-500/20 rounded-2xl p-5 flex gap-4 text-sm">
+                    <Info className="w-5 h-5 text-violet-400 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-bold text-white mb-2">Sistema de tokens y ganancias</h4>
+                      <ul className="space-y-1.5 text-muted-foreground">
+                        <li><strong className="text-violet-300 font-medium">Equivalencia:</strong> 1 token = $1.000 pesos argentinos (ARS).</li>
+                        <li><strong className="text-violet-300 font-medium">Comisión:</strong> Retenemos aproximadamente un <strong>20%</strong> del costo en concepto de uso de plataforma.</li>
+                        <li><strong className="text-violet-300 font-medium">Ejemplo:</strong> Si tu sesión cuesta 10 tokens ($10.000 ARS), el pago acreditado será de aprox. $8.000 ARS.</li>
+                      </ul>
                     </div>
                   </div>
 

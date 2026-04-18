@@ -11,8 +11,10 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useAuthStore, useHydratedAuth } from "@/store/auth";
+import { useCreditsStore } from "@/store/credits";
 import { apiFetch } from "@/lib/api";
 import { TalentProfile } from "@/types";
+import { UserAvatar } from "@/components/common/UserAvatar";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -25,6 +27,8 @@ export default function TalentProfilePage() {
   const [talent, setTalent] = useState<TalentProfile | null>(null);
   const [isBooking, setIsBooking] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { balance } = useCreditsStore();
+  const [showCreditsPopup, setShowCreditsPopup] = useState(false);
 
   useEffect(() => {
     const loadTalent = async () => {
@@ -96,6 +100,11 @@ export default function TalentProfilePage() {
       return;
     }
 
+    if (balance === null || balance < priceUsd) {
+      setShowCreditsPopup(true);
+      return;
+    }
+
     setIsBooking(true);
     try {
       const data = await apiFetch("/bookings", {
@@ -110,7 +119,11 @@ export default function TalentProfilePage() {
       toast.success("¡Ya estás en la cola virtual!");
       router.push(`/bookings/${data.booking.id}/call`);
     } catch (err: any) {
-      toast.error(err.message || "Error al unirse a la cola");
+      if (err.message && err.message.includes("Créditos insuficientes")) {
+        setShowCreditsPopup(true);
+      } else {
+        toast.error(err.message || "Error al unirse a la cola");
+      }
     } finally {
       setIsBooking(false);
     }
@@ -138,10 +151,11 @@ export default function TalentProfilePage() {
           {/* Main info */}
           <div className="flex-1">
             <div className="glass rounded-3xl p-5 md:p-8 flex flex-col sm:flex-row items-center sm:items-end gap-5 md:gap-6 shadow-2xl">
-              <img
+              <UserAvatar 
                 src={avatarUrl}
-                alt={stageName}
-                className="w-28 h-28 md:w-40 md:h-40 rounded-full border-4 border-card bg-card shadow-lg object-cover"
+                name={stageName}
+                size="2xl"
+                className="md:scale-[1.2] origin-bottom sm:origin-center"
               />
               <div className="text-center sm:text-left flex-1">
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mb-2">
@@ -193,8 +207,11 @@ export default function TalentProfilePage() {
             <div className="glass rounded-3xl p-6 sticky top-24 shadow-2xl border-white/10">
               <div className="flex justify-between items-start mb-6 pb-6 border-b border-white/5">
                 <div>
-                  <div className="text-3xl font-bold gradient-text">${priceUsd}</div>
-                  <div className="text-sm text-muted-foreground mt-1">Por {durationMin} minutos</div>
+                  <div className="text-3xl font-bold gradient-text flex items-center gap-2">
+                    <Zap className="w-6 h-6 text-violet-400" />
+                    {priceUsd.toLocaleString("es-AR")} <span className="text-sm text-violet-300">créditos</span>
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">Por {durationMin} minutos de sesión viva</div>
                 </div>
                 {talent.isLive ? (
                   <div className="bg-red-500/10 text-red-500 px-3 py-1 rounded-full flex items-center gap-2 text-xs font-bold animate-pulse">
@@ -236,13 +253,20 @@ export default function TalentProfilePage() {
                       <div className="space-y-4 pt-4">
                         <div className="flex justify-between items-center p-6 rounded-2xl bg-black/40 border border-white/5">
                           <div className="flex items-center gap-4">
-                            <img src={avatarUrl} className="w-12 h-12 rounded-full object-cover border-2 border-violet-500/20" />
+                            <UserAvatar 
+                              src={avatarUrl}
+                              name={stageName}
+                              size="md"
+                            />
                             <div>
                               <p className="font-bold text-lg">{stageName}</p>
                               <p className="text-xs text-muted-foreground">Videollamada en vivo ({durationMin} min)</p>
                             </div>
                           </div>
-                          <div className="font-black text-2xl text-violet-300">${priceUsd}</div>
+                          <div className="font-black text-xl text-violet-300 flex flex-col items-end">
+                            {priceUsd.toLocaleString("es-AR")}
+                            <span className="text-[10px] uppercase font-bold text-violet-400">Créditos</span>
+                          </div>
                         </div>
 
                         <div className="bg-violet-500/10 text-violet-300 p-4 rounded-2xl text-sm flex gap-3 items-start mt-4">
@@ -259,6 +283,34 @@ export default function TalentProfilePage() {
                         >
                           {isBooking ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
                           {isBooking ? "Procesando..." : "Entrar a la sala de espera"}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* Credits Popup */}
+                  <Dialog open={showCreditsPopup} onOpenChange={setShowCreditsPopup}>
+                    <DialogContent className="glass border-white/10 sm:max-w-sm text-center p-8">
+                      <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4 border border-red-500/20">
+                        <Zap className="w-8 h-8 text-red-500" />
+                      </div>
+                      <DialogTitle className="text-2xl font-bold mb-2">Créditos insuficientes</DialogTitle>
+                      <p className="text-muted-foreground mb-6">
+                        Necesitas {priceUsd} créditos para unirte a la llamada. Tu saldo actual es de {balance || 0} créditos.
+                      </p>
+                      <div className="flex flex-col gap-3">
+                        <Button 
+                          onClick={() => router.push("/credits/buy")}
+                          className="w-full btn-gradient text-white h-12 rounded-xl font-bold"
+                        >
+                          Comprar créditos
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          onClick={() => setShowCreditsPopup(false)}
+                          className="w-full h-12 rounded-xl"
+                        >
+                          Cancelar
                         </Button>
                       </div>
                     </DialogContent>

@@ -141,7 +141,7 @@ export default function BookingDetailPage() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1">Monto de la reserva</p>
-                  <p className="font-semibold text-lg text-white">${booking.priceUsd} USD</p>
+                  <p className="font-semibold text-lg text-white">{booking.priceUsd} tokens</p>
                 </div>
               </div>
             </div>

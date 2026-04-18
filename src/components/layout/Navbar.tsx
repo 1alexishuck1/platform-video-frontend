@@ -24,6 +24,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuthStore, useHydratedAuth } from "@/store/auth";
+import { UserAvatar } from "@/components/common/UserAvatar";
+import { WalletWidget } from "@/components/credits/WalletWidget";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -85,17 +87,19 @@ export function Navbar() {
             {!isHydrated ? (
               <div className="w-20 h-8 rounded-md bg-white/5 animate-pulse" />
             ) : isAuthenticated && user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center gap-2 rounded-full p-1 hover:bg-white/5 transition-colors">
-                  <Avatar className="w-8 h-8 border border-violet-500/30">
-                    <AvatarFallback className="bg-violet-900/50 text-violet-300 text-xs font-semibold">
-                      {getInitials(user.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm text-muted-foreground max-w-[120px] truncate">
-                    {user.name}
-                  </span>
-                </DropdownMenuTrigger>
+              <>
+                <WalletWidget />
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center gap-2 rounded-full p-1 hover:bg-white/5 transition-colors">
+                    <UserAvatar 
+                      src={user.avatarUrl || user.avatar_url}
+                      name={user.name}
+                      size="sm"
+                    />
+                    <span className="text-sm text-muted-foreground max-w-[120px] truncate">
+                      {user.name}
+                    </span>
+                  </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 bg-card border-white/10 p-2">
                   <div className="px-2 py-1.5 mb-1">
                     <p className="text-[10px] font-black uppercase text-violet-400 tracking-widest">Mi Actividad</p>
@@ -145,6 +149,7 @@ export function Navbar() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              </>
             ) : (
               <>
                 <Link
@@ -217,6 +222,10 @@ export function Navbar() {
                     <LayoutDashboard className="w-3 h-3" /> Panel de Control
                   </p>
                   <div className="grid gap-1">
+                    <div className="flex justify-between items-center px-3 py-2">
+                       <span className="text-sm font-medium text-muted-foreground">Tu saldo:</span>
+                       <WalletWidget />
+                    </div>
                     <Link href="/dashboard" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
                       <Calendar className="w-5 h-5 text-violet-400" /> Mis sesiones
                     </Link>
@@ -265,11 +274,11 @@ export function Navbar() {
             {/* User Info (Bottom Sticker) */}
             {isAuthenticated && user && (
               <div className="p-6 bg-white/5 border-t border-white/5 flex items-center gap-3">
-                <Avatar className="w-10 h-10 border border-violet-500/30">
-                  <AvatarFallback className="bg-violet-900/50 text-violet-300">
-                    {getInitials(user.name)}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar 
+                  src={user.avatarUrl || user.avatar_url}
+                  name={user.name}
+                  size="md"
+                />
                 <div className="overflow-hidden">
                   <p className="text-sm font-semibold text-white truncate">{user.name}</p>
                   <p className="text-xs text-muted-foreground">Usuario verificado</p>

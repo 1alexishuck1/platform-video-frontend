@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { BookingStatusBadge } from "@/components/bookings/BookingStatusBadge";
 import { useAuthStore, useHydratedAuth } from "@/store/auth";
+import { UserAvatar } from "@/components/common/UserAvatar";
 import { apiFetch } from "@/lib/api";
 import { Booking } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -161,13 +162,12 @@ function FanDashboardContent() {
               {inQueue.map((booking) => (
                 <div key={booking.id} className="p-1 rounded-3xl bg-gradient-to-r from-violet-600/20 to-pink-600/20">
                   <div className="glass rounded-[1.4rem] p-6 flex flex-col md:flex-row items-center gap-6">
-                    <div className="relative">
-                      <img
-                        src={booking.talent?.avatarUrl || booking.talent?.avatar_url}
-                        className="w-20 h-20 rounded-2xl object-cover border-2 border-white/5"
-                      />
-                      <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded shadow-xl uppercase">LIVE</div>
-                    </div>
+                    <UserAvatar 
+                      src={booking.talent?.avatarUrl || booking.talent?.avatar_url}
+                      name={booking.talent?.stageName || booking.talent?.stage_name}
+                      size="xl"
+                      isLive
+                    />
 
                     <div className="flex-1 text-center md:text-left">
                       <h3 className="text-2xl font-black mb-1">{booking.talent?.stageName || booking.talent?.stage_name}</h3>
@@ -213,9 +213,10 @@ function FanDashboardContent() {
               {upcoming.map((booking) => (
                 <Link href={`/bookings/${booking.id}`} key={booking.id} className="block group">
                   <div className="glass card-hover rounded-2xl p-4 md:p-5 flex flex-col sm:flex-row items-center gap-4 md:gap-5 border border-white/5">
-                    <img
+                    <UserAvatar 
                       src={booking.talent?.avatarUrl || booking.talent?.avatar_url}
-                      className="w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-card shadow-sm object-cover"
+                      name={booking.talent?.stageName || booking.talent?.stage_name}
+                      size="lg"
                     />
                     <div className="flex-1 text-center sm:text-left">
                       <h3 className="font-bold text-lg mb-1 group-hover:text-violet-300 transition-colors">
@@ -224,7 +225,10 @@ function FanDashboardContent() {
                       <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1.5 bg-black/30 px-3 py-1 rounded-full text-white font-medium">
                           <Calendar className="w-3.5 h-3.5 text-violet-400" />
-                          {format(new Date(booking.startsAt || booking.starts_at), "dd 'de' MMM, HH:mm", { locale: es })} hs
+                          { (booking.startsAt || booking.starts_at) 
+                            ? format(new Date(booking.startsAt || booking.starts_at), "dd 'de' MMM, HH:mm", { locale: es }) + " hs"
+                            : "Sin fecha definida" 
+                          }
                         </span>
                         <span className="flex items-center gap-1.5 shrink-0">
                           <Clock className="w-3.5 h-3.5 text-violet-400" />
@@ -287,11 +291,19 @@ function FanDashboardContent() {
           <div className="grid grid-cols-1 gap-4">
             {past.map((booking: any) => (
               <div key={booking.id} className="glass rounded-2xl p-4 md:p-6 flex flex-col sm:flex-row items-center gap-4 border border-white/5 opacity-70 hover:opacity-100 transition-opacity">
-                <img src={booking.talent?.avatarUrl || booking.talent?.avatar_url} className="w-10 h-10 rounded-full grayscale object-cover" />
+                <UserAvatar 
+                  src={booking.talent?.avatarUrl || booking.talent?.avatar_url}
+                  name={booking.talent?.stageName || booking.talent?.stage_name}
+                  size="sm"
+                  className="grayscale"
+                />
                 <div className="flex-1 text-center sm:text-left">
                   <h3 className="font-medium">{booking.talent?.stageName || booking.talent?.stage_name}</h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {format(new Date(booking.startsAt || booking.starts_at), "dd MMM, yyyy", { locale: es })}
+                    { (booking.startsAt || booking.starts_at) 
+                      ? format(new Date(booking.startsAt || booking.starts_at), "dd MMM, yyyy", { locale: es })
+                      : "Bajo demanda" 
+                    }
                   </p>
                 </div>
                 <BookingStatusBadge status={booking.status} size="sm" />
