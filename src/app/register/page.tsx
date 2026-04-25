@@ -146,6 +146,15 @@ function RegisterContent() {
               Iniciá sesión
             </Link>
           </p>
+
+          <div className="mt-8 pt-6 border-t border-white/5 text-center">
+            <p className="text-[10px] text-white/20 leading-relaxed">
+              Al registrarte, aceptás nuestros{" "}
+              <Link href="/terms" className="text-white/40 hover:text-violet-400 transition-colors underline underline-offset-2">Términos</Link>,{" "}
+              <Link href="/acceptable-use" className="text-white/40 hover:text-violet-400 transition-colors underline underline-offset-2">Uso Aceptable</Link> y{" "}
+              <Link href="/privacy" className="text-white/40 hover:text-violet-400 transition-colors underline underline-offset-2">Política de Privacidad</Link>.
+            </p>
+          </div>
         </div>
       </div>
     </div>

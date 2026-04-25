@@ -552,7 +552,7 @@ export default function TalentLiveStudio() {
                     {queue.map((item, i) => (
                       <div key={item.id} className="relative shrink-0">
                          <UserAvatar 
-                            src={item.fan?.avatarUrl || item.fan?.avatar_url}
+                            src={item.fan?.avatarUrl}
                             name={item.fan?.name}
                             size="sm"
                           />
@@ -658,7 +658,7 @@ export default function TalentLiveStudio() {
                         <div className="flex items-center gap-3">
                            <div className="relative shrink-0">
                              <UserAvatar 
-                                src={item.fan?.avatarUrl || item.fan?.avatar_url}
+                                src={item.fan?.avatarUrl}
                                 name={item.fan?.name}
                                 size="sm"
                              />

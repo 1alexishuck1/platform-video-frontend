@@ -1,10 +1,11 @@
 "use client";
 // Navbar — authenticated state-aware, shows different links per role
-// Uses useAuthStore for session, collapses to sheet on mobile
+// Verifica estado de la cuenta en cada carga y muestra AccountStatusModal si corresponde.
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Video, Menu, LogOut, User, LayoutDashboard, Calendar } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Video, Menu, LogOut, User, LayoutDashboard, Calendar, ShieldCheck } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -27,6 +28,7 @@ import { useAuthStore, useHydratedAuth } from "@/store/auth";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import { WalletWidget } from "@/components/credits/WalletWidget";
 import { cn } from "@/lib/utils";
+import { AccountStatusModal } from "@/components/modals/AccountStatusModal";
 
 const NAV_LINKS = [
   { href: "/about", label: "Acerca de" },
@@ -35,7 +37,24 @@ const NAV_LINKS = [
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isAuthenticated, logout, isHydrated } = useHydratedAuth();
+  const { user, token, isAuthenticated, logout, isHydrated } = useHydratedAuth();
+  const [accountStatus, setAccountStatus] = useState<{ status: "PAUSED" | "BLOCKED"; reason?: string } | null>(null);
+
+  // Verificar estado de la cuenta en cada carga de la plataforma
+  useEffect(() => {
+    if (!isHydrated || !isAuthenticated || !token) return;
+    // Si el admin responde con Account_Blocked o Account_Paused en cualquier ruta protegida,
+    // el backend lo devuelve. Lo detectamos proactivamente en /auth/me.
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(res => res.json()).then(data => {
+      if (data.error === "Account_Blocked") {
+        setAccountStatus({ status: "BLOCKED", reason: data.reason });
+      } else if (data.error === "Account_Paused") {
+        setAccountStatus({ status: "PAUSED", reason: data.reason });
+      }
+    }).catch(() => {});
+  }, [isHydrated, isAuthenticated, token]);
 
   const handleLogout = () => {
     logout();
@@ -51,7 +70,17 @@ export function Navbar() {
       .slice(0, 2);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
+    <>
+      {/* Modal de estado de cuenta — se muestra sobre toda la plataforma */}
+      {accountStatus && (
+        <AccountStatusModal
+          status={accountStatus.status}
+          reason={accountStatus.reason}
+          onClose={accountStatus.status === "PAUSED" ? () => setAccountStatus(null) : undefined}
+        />
+      )}
+      <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
+
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 md:h-16 flex items-center">
         {/* Left Section (1/3) */}
         <div className="flex-1 flex justify-start items-center">
@@ -137,6 +166,13 @@ export function Navbar() {
                     render={
                       <Link href="/talent/edit" className="flex items-center gap-3 cursor-pointer w-full px-2 py-2 rounded-xl transition-colors hover:bg-white/5">
                         <User className="w-4 h-4 text-pink-500" />Configurar Canal
+                      </Link>
+                    }
+                  />
+                  <DropdownMenuItem
+                    render={
+                      <Link href="/dashboard/verification" className="flex items-center gap-3 cursor-pointer w-full px-2 py-2 rounded-xl transition-colors hover:bg-white/5">
+                        <ShieldCheck className="w-4 h-4 text-green-400" /> Solicitar Verificación
                       </Link>
                     }
                   />
@@ -235,6 +271,9 @@ export function Navbar() {
                     <Link href="/talent/edit" className="flex items-center gap-3 px-3 py-3 rounded-xl text-pink-400 hover:bg-pink-400/5 hover:text-pink-300 transition-all font-bold">
                       <User className="w-5 h-5 text-pink-400" />Configurar Canal
                     </Link>
+                    <Link href="/dashboard/verification" className="flex items-center gap-3 px-3 py-3 rounded-xl text-green-400 hover:bg-green-400/5 hover:text-green-300 transition-all font-bold">
+                      <ShieldCheck className="w-5 h-5 text-green-400" /> Solicitar Verificación
+                    </Link>
                     <Link href="/profile" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
                       <User className="w-5 h-5 text-blue-400" /> Mi perfil
                     </Link>
@@ -289,5 +328,6 @@ export function Navbar() {
         </Sheet>
       </nav>
     </header>
+    </>
   );
 }

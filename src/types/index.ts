@@ -33,6 +33,7 @@ export interface TalentProfile {
   rating?: number;
   total_sessions?: number;
   queueCount?: number;
+  userId?: string; // Real API
 }
 
 export interface AvailabilityRule {

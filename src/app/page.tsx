@@ -63,25 +63,25 @@ export default function IndexPage() {
     <div className="min-h-screen">
       <Navbar />
 
-      <main className="pt-20 md:pt-24 px-5 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-8 md:mb-12">
+      <main className="pt-16 px-5 sm:px-6 lg:px-8 max-w-[90rem] mx-auto">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
           <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-            <h1 className="text-4xl sm:text-5xl font-bold font-black gradient-text">Talentos en vivo</h1>
-            <p className="text-muted-foreground mt-2 max-w-lg">Encontrá a tus ídolos y hablá con ellos en persona. Además, ¡ahora vos también podés transmitir!</p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/talent/dashboard" className={cn(buttonVariants({ variant: "outline" }), "glass border-pink-500/30 text-pink-400 gap-2 h-11 px-6 rounded-full hover:bg-pink-500/10 transition-all font-black text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(236,72,153,0.1)] group")}>
+            <h1 className="text-2xl sm:text-3xl font-bold font-black gradient-text">Talentos en vivo</h1>
+            <p className="text-sm text-muted-foreground mt-1 max-w-lg">Encontrá a tus ídolos y hablá con ellos en persona. Además, ¡ahora vos también podés transmitir!</p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link href="/talent/dashboard" className={cn(buttonVariants({ variant: "outline" }), "glass border-pink-500/30 text-pink-400 gap-2 h-9 px-4 rounded-full hover:bg-pink-500/10 transition-all font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(236,72,153,0.1)] group")}>
                 <Zap className="w-3 h-3 fill-pink-500 group-hover:animate-pulse" /> ¡Transmitir en vivo!
               </Link>
             </div>
           </div>
 
-          <div className="relative w-full md:w-80 animate-in fade-in slide-in-from-right-4 duration-500">
+          <div className="relative w-full md:w-64 animate-in fade-in slide-in-from-right-4 duration-500">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Buscar por nombre..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 input-dark h-12 md:h-11 rounded-xl"
+              className="pl-9 input-dark h-9 text-sm rounded-xl"
             />
           </div>
         </div>
@@ -103,34 +103,34 @@ export default function IndexPage() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mt-12 mb-20 animate-pulse">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="glass rounded-2xl h-[350px] flex flex-col p-4 border border-white/5">
-                <div className="h-40 rounded-xl bg-white/5 mb-4" />
-                <div className="h-6 w-3/4 rounded bg-white/10 mb-2" />
-                <div className="h-4 w-1/2 rounded bg-white/5 mb-6" />
-                <div className="mt-auto h-12 rounded-xl bg-white/5" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 mt-8 mb-16 animate-pulse">
+            {[...Array(10)].map((_, i) => (
+              <div key={i} className="glass rounded-[1.5rem] h-[280px] flex flex-col p-3 border border-white/5">
+                <div className="h-32 rounded-xl bg-white/5 mb-3" />
+                <div className="h-5 w-3/4 rounded bg-white/10 mb-2" />
+                <div className="h-3 w-1/2 rounded bg-white/5 mb-4" />
+                <div className="mt-auto h-10 rounded-xl bg-white/5" />
               </div>
             ))}
           </div>
         ) : (
-          <div className="space-y-16 mt-12 mb-20">
+          <div className="space-y-12 mt-8 mb-16">
             {/* Live Section */}
             <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-2 h-8 bg-red-500 rounded-full animate-pulse" />
-                <h2 className="text-2xl font-bold text-white uppercase tracking-tighter">En vivo ahora</h2>
-                <div className="bg-red-500/10 text-red-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-red-500/20">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-1.5 h-6 bg-red-500 rounded-full animate-pulse" />
+                <h2 className="text-xl font-bold text-white uppercase tracking-tighter">En vivo ahora</h2>
+                <div className="bg-red-500/10 text-red-500 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-red-500/20">
                   {liveNow.length} ACTIVOS
                 </div>
               </div>
 
               {liveNow.length === 0 ? (
-                <div className="glass rounded-[2rem] sm:rounded-[2.5rem] p-10 sm:p-16 text-center border-dashed border-2 border-white/5 opacity-60">
-                  <p className="text-muted-foreground font-medium text-base sm:text-lg">No hay talentos en vivo en este momento. ¡Volvé pronto!</p>
+                <div className="glass rounded-[2rem] p-8 text-center border-dashed border-2 border-white/5 opacity-60">
+                  <p className="text-sm text-muted-foreground font-medium">No hay talentos en vivo en este momento. ¡Volvé pronto!</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                   {liveNow.map((talent) => (
                     <TalentCard key={talent.id} talent={talent} />
                   ))}
@@ -140,16 +140,22 @@ export default function IndexPage() {
 
             {/* Offline Section */}
             <section className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-2 h-8 bg-violet-600 rounded-full" />
-                <h2 className="text-2xl font-bold text-white uppercase tracking-tighter opacity-60">Explorar offline</h2>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-1.5 h-6 bg-violet-600 rounded-full" />
+                <h2 className="text-xl font-bold text-white uppercase tracking-tighter opacity-60">Explorar offline</h2>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 opacity-80">
-                {offline.map((talent) => (
-                  <TalentCard key={talent.id} talent={talent} />
-                ))}
-              </div>
+              {offline.length === 0 ? (
+                <div className="glass rounded-[2rem] p-8 text-center border-dashed border-2 border-white/5 opacity-50">
+                  <p className="text-sm text-muted-foreground font-medium">No hay talentos offline en este momento.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 opacity-80">
+                  {offline.map((talent) => (
+                    <TalentCard key={talent.id} talent={talent} />
+                  ))}
+                </div>
+              )}
             </section>
           </div>
         )}

@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthStore } from "@/store/auth";
 import { apiFetch } from "@/lib/api";
-import { Navbar } from "@/components/layout/Navbar";
 
 const schema = z.object({
   email: z.string().email("Email inválido"),
@@ -45,7 +44,7 @@ export default function LoginPage() {
       });
 
       login(response.user, response.token);
-      router.push("/dashboard");
+      router.push("/");
     } catch (error: any) {
       setError("password", { message: error.message || "Error al iniciar sesión" });
     } finally {
@@ -55,7 +54,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      <Navbar />
       {/* Background glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl" />
@@ -116,6 +114,14 @@ export default function LoginPage() {
               {errors.password && (
                 <p className="text-xs text-red-400">{errors.password.message}</p>
               )}
+              <div className="flex justify-end">
+                <Link 
+                  href="/forgot-password" 
+                  className="text-xs text-white/40 hover:text-white transition-colors"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
             </div>
 
             <Button
@@ -135,6 +141,15 @@ export default function LoginPage() {
             <Link href="/register" className="text-violet-400 hover:text-violet-300 font-medium">
               Registrate gratis
             </Link>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-white/5 text-center">
+            <p className="text-[10px] text-white/20 leading-relaxed">
+              Al iniciar sesión, aceptás nuestros{" "}
+              <Link href="/terms" className="text-white/40 hover:text-violet-400 transition-colors underline underline-offset-2">Términos</Link>,{" "}
+              <Link href="/acceptable-use" className="text-white/40 hover:text-violet-400 transition-colors underline underline-offset-2">Uso Aceptable</Link> y{" "}
+              <Link href="/privacy" className="text-white/40 hover:text-violet-400 transition-colors underline underline-offset-2">Política de Privacidad</Link>.
+            </p>
           </div>
         </div>
       </div>

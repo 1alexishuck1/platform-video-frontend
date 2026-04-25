@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { 
   Clock, Star, Zap, Video, ShieldCheck, 
-  ChevronLeft, Loader2, Users, ArrowUpRight 
+  ChevronLeft, Loader2, Users, ArrowUpRight, Bell, BellOff 
 } from "lucide-react";
 
 import { Navbar } from "@/components/layout/Navbar";
@@ -29,12 +29,24 @@ export default function TalentProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const { balance } = useCreditsStore();
   const [showCreditsPopup, setShowCreditsPopup] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isSubscribing, setIsSubscribing] = useState(false);
 
   useEffect(() => {
     const loadTalent = async () => {
       try {
         const data = await apiFetch(`/talents/${id}`);
         setTalent(data.talent);
+
+        // Load subscription status if authenticated
+        if (isAuthenticated) {
+          try {
+            const sub = await apiFetch(`/notifications/live/${id}`);
+            setIsSubscribed(sub.subscribed);
+          } catch {
+            // Not critical — ignore errors here
+          }
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -42,7 +54,7 @@ export default function TalentProfilePage() {
       }
     };
     loadTalent();
-  }, [id]);
+  }, [id, isAuthenticated]);
 
 
 
@@ -69,8 +81,21 @@ export default function TalentProfilePage() {
                 <Skeleton className="h-24 w-full rounded-2xl" />
               </div>
             </div>
-            <div className="w-full md:w-96 shrink-0 md:-mt-32">
-              <Skeleton className="h-96 w-full rounded-3xl shadow-2xl" />
+            <div className="w-full md:w-96 shrink-0">
+              <div className="glass rounded-[2.5rem] p-8 space-y-8 shadow-2xl">
+                <div className="space-y-3 pb-6 border-b border-white/5">
+                   <Skeleton className="h-10 w-40 rounded-xl" />
+                   <Skeleton className="h-4 w-56 rounded-full" />
+                </div>
+                <div className="space-y-6 flex flex-col items-center">
+                   <Skeleton className="w-16 h-16 rounded-2xl" />
+                   <div className="space-y-2 w-full flex flex-col items-center">
+                     <Skeleton className="h-8 w-48 rounded-lg" />
+                     <Skeleton className="h-4 w-full rounded-md" />
+                   </div>
+                   <Skeleton className="h-14 w-full rounded-2xl mt-2" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -129,6 +154,29 @@ export default function TalentProfilePage() {
     }
   };
 
+  const handleToggleSubscription = async () => {
+    if (!isAuthenticated) {
+      router.push("/login");
+      return;
+    }
+    setIsSubscribing(true);
+    try {
+      const result = await apiFetch(`/notifications/live/${talent!.id}`, {
+        method: "POST",
+      });
+      setIsSubscribed(result.subscribed);
+      toast.success(
+        result.subscribed
+          ? "¡Activado! Te avisaremos por mail cuando esté en vivo."
+          : "Notificaciones desactivadas."
+      );
+    } catch (err: any) {
+      toast.error(err.message || "Error al cambiar la suscripción.");
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
+
 
 
   return (
@@ -160,6 +208,11 @@ export default function TalentProfilePage() {
               <div className="text-center sm:text-left flex-1">
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mb-2">
                   <h1 className="text-3xl font-bold">{stageName}</h1>
+                  {talent.isVerified && (
+                    <div className="bg-blue-600 rounded-full p-1" title="Identidad Verificada">
+                      <ShieldCheck className="w-4 h-4 text-white fill-white/20" />
+                    </div>
+                  )}
                   <span className="glass px-3 py-1 rounded-full text-xs text-violet-300 font-medium tracking-wide">
                     {talent.category}
                   </span>
@@ -318,25 +371,59 @@ export default function TalentProfilePage() {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  <div className="p-8 rounded-2xl bg-white/5 border border-dashed border-white/10 flex flex-col items-center text-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
-                      <Clock className="w-8 h-8 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-lg">Actualmente offline</p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {stageName} no está recibiendo llamadas en este momento. Volvé cuando esté en vivo.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full h-12 rounded-xl border-white/10 text-muted-foreground hover:text-white"
-                    onClick={() => toast.info("Te avisaremos la próxima vez que esté en vivo (simulado)")}
+                  {/* Unified Premium Offline & Notification CTA */}
+                  <div 
+                    onClick={handleToggleSubscription}
+                    className={cn(
+                      "relative cursor-pointer group overflow-hidden rounded-[2.2rem] p-8 transition-all duration-700 border active:scale-[0.98]",
+                      isSubscribed 
+                        ? "bg-violet-600/5 border-violet-500/30 shadow-[0_0_30px_rgba(139,92,246,0.1)]" 
+                        : "bg-gradient-to-br from-violet-600/20 via-black to-indigo-900/20 border-white/10 hover:border-violet-500/50 hover:shadow-[0_0_40px_rgba(139,92,246,0.15)]"
+                    )}
                   >
-                    Notificarme cuando esté en vivo
-                  </Button>
+                     {/* Floating Glows */}
+                     <div className="absolute -top-20 -right-20 w-40 h-40 bg-violet-600/20 blur-[60px] group-hover:bg-violet-600/30 transition-colors duration-700" />
+                     <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-indigo-600/10 blur-[60px]" />
+
+                     <div className="relative z-10 flex flex-col items-center text-center gap-5">
+                        <div className={cn(
+                          "w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-700 shadow-2xl",
+                          isSubscribed 
+                            ? "bg-violet-600 text-white" 
+                            : "bg-white/5 text-violet-400 border border-white/10 group-hover:scale-110 group-hover:rotate-[15deg] group-hover:bg-violet-500/10"
+                        )}>
+                           {isSubscribed ? (
+                             <BellOff className="w-8 h-8" />
+                           ) : (
+                             <Bell className="w-8 h-8 group-hover:animate-bounce" />
+                           )}
+                        </div>
+                        
+                        <div>
+                           <h3 className="text-2xl font-black text-white uppercase tracking-tighter leading-none">
+                             {isSubscribed ? "Alerta activa" : "Actualmente offline"}
+                           </h3>
+                           <p className="text-white/50 text-xs mt-3 leading-relaxed font-medium max-w-[220px]">
+                             {isSubscribed 
+                               ? `Te avisaremos apenas ${stageName} prenda vivo.`
+                               : `Recibí un aviso por email el segundo exacto que ${stageName} empiece su directo.`}
+                           </p>
+                        </div>
+
+                        <div className={cn(
+                          "w-full h-12 rounded-xl flex items-center justify-center font-black text-[10px] uppercase tracking-[0.3em] transition-all duration-500 border mt-2",
+                          isSubscribed
+                            ? "bg-transparent border-white/10 text-white/30 hover:border-red-500/50 hover:text-red-400"
+                            : "bg-white text-black border-transparent group-hover:bg-violet-500 group-hover:text-white"
+                        )}>
+                          {isSubscribing ? (
+                             <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                             isSubscribed ? "Anular alerta" : "Activar alerta"
+                          )}
+                        </div>
+                     </div>
+                  </div>
                 </div>
               )}
 
