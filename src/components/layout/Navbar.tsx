@@ -213,114 +213,141 @@ export function Navbar() {
               <span className="sr-only">Abrir menú</span>
             </Button>
           } />
-          <SheetContent side="right" className="w-[85%] max-w-sm glass border-l border-white/10 p-0 flex flex-col shadow-2xl overflow-hidden" showCloseButton={false}>
+          <SheetContent side="right" className="w-[85%] sm:w-[380px] bg-[#07070a]/90 backdrop-blur-2xl border-l border-white/10 p-0 flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden transition-all duration-500" showCloseButton={false}>
             {/* Header */}
-            <div className="p-6 border-b border-white/5 flex items-center justify-between bg-black/40">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg btn-gradient flex items-center justify-center shadow-lg">
-                  <Video className="w-4 h-4 text-white" />
+            <div className="p-6 pb-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600 to-pink-600 flex items-center justify-center shadow-lg shadow-violet-600/20">
+                  <Video className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-bold text-lg gradient-text">Menu</span>
+                <div>
+                  <span className="font-black text-xl text-white tracking-tighter block leading-none">PLATFOMLIVE</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-white/30">Navegación</span>
+                </div>
               </div>
               <SheetClose render={
-                <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/10">
+                <Button variant="ghost" size="icon" className="w-10 h-10 rounded-2xl bg-white/5 hover:bg-white/10 text-white/40">
                   <XIcon className="w-5 h-5" />
                 </Button>
               } />
             </div>
 
-            <div className="flex-1 overflow-y-auto px-6 py-8 space-y-8">
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-8 scrollbar-hide">
               {/* Main Links */}
-              <div className="space-y-4">
-                <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest px-2">Navegación</p>
-                <div className="grid gap-1">
-                  {NAV_LINKS.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={cn(
-                        "flex items-center gap-3 px-3 py-3 rounded-xl transition-all font-medium",
-                        pathname === link.href
-                          ? "bg-violet-600/10 text-violet-300 border border-violet-500/20"
-                          : "text-muted-foreground hover:bg-white/5 hover:text-white"
-                      )}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
+              <div className="grid gap-2">
+                {NAV_LINKS.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      "flex items-center gap-4 px-4 py-4 rounded-[1.5rem] transition-all font-bold text-base",
+                      pathname === link.href
+                        ? "bg-violet-600/20 text-violet-400 border border-violet-500/20 shadow-lg shadow-violet-600/10"
+                        : "text-white/40 hover:bg-white/5 hover:text-white"
+                    )}
+                  >
+                    <div className={cn("w-1.5 h-1.5 rounded-full", pathname === link.href ? "bg-violet-400" : "bg-transparent")} />
+                    {link.label}
+                  </Link>
+                ))}
               </div>
 
               {/* Account Section */}
               {isAuthenticated && user && (
-                <div className="space-y-4 pt-4 border-t border-white/5">
-                  <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest px-2 flex items-center gap-2">
-                    <LayoutDashboard className="w-3 h-3" /> Panel de Control
-                  </p>
-                  <div className="grid gap-1">
-                    <div className="flex justify-between items-center px-3 py-2">
-                       <span className="text-sm font-medium text-muted-foreground">Tu saldo:</span>
-                       <WalletWidget />
+                <div className="space-y-6 pt-6 border-t border-white/5">
+                  <div className="flex items-center justify-between bg-white/[0.03] border border-white/5 p-5 rounded-[2rem]">
+                    <div className="space-y-0.5">
+                      <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Tu billetera</p>
+                      <p className="text-lg font-black text-white">Saldo Actual</p>
                     </div>
-                    <Link href="/dashboard" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
-                      <Calendar className="w-5 h-5 text-violet-400" /> Mis sesiones
+                    <WalletWidget />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <p className="text-[10px] font-black uppercase text-white/20 tracking-widest px-4 mb-2">Panel de Control</p>
+                    
+                    <Link href="/dashboard" className="flex items-center gap-4 px-4 py-4 rounded-[1.5rem] text-white/50 hover:bg-white/5 hover:text-white transition-all font-bold">
+                      <div className="w-10 h-10 rounded-xl bg-violet-600/10 flex items-center justify-center text-violet-400">
+                        <Calendar className="w-5 h-5" />
+                      </div>
+                      Mis sesiones
                     </Link>
-                    <Link href="/talent/dashboard" className="flex items-center gap-3 px-3 py-3 rounded-xl text-pink-400 hover:bg-pink-400/5 hover:text-pink-300 transition-all font-bold">
-                      <LayoutDashboard className="w-5 h-5 text-pink-400" /> ¡Transmitir en vivo!
+
+                    <Link href="/talent/dashboard" className="flex items-center gap-4 px-4 py-4 rounded-[1.5rem] bg-gradient-to-r from-pink-600/10 to-red-600/10 border border-pink-500/10 text-pink-400 hover:scale-[1.02] transition-all font-black italic">
+                      <div className="w-10 h-10 rounded-xl bg-pink-600/20 flex items-center justify-center text-pink-400 shadow-inner">
+                        <LayoutDashboard className="w-5 h-5" />
+                      </div>
+                      ¡TRANSMITIR EN VIVO!
                     </Link>
-                    <Link href="/talent/edit" className="flex items-center gap-3 px-3 py-3 rounded-xl text-pink-400 hover:bg-pink-400/5 hover:text-pink-300 transition-all font-bold">
-                      <User className="w-5 h-5 text-pink-400" />Configurar Canal
+
+                    <Link href="/talent/edit" className="flex items-center gap-4 px-4 py-4 rounded-[1.5rem] text-white/50 hover:bg-white/5 hover:text-white transition-all font-bold">
+                      <div className="w-10 h-10 rounded-xl bg-pink-600/10 flex items-center justify-center text-pink-500">
+                        <User className="w-5 h-5" />
+                      </div>
+                      Configurar Canal
                     </Link>
-                    <Link href="/dashboard/verification" className="flex items-center gap-3 px-3 py-3 rounded-xl text-green-400 hover:bg-green-400/5 hover:text-green-300 transition-all font-bold">
-                      <ShieldCheck className="w-5 h-5 text-green-400" /> Solicitar Verificación
+
+                    <Link href="/dashboard/verification" className="flex items-center gap-4 px-4 py-4 rounded-[1.5rem] text-white/50 hover:bg-white/5 hover:text-white transition-all font-bold">
+                      <div className="w-10 h-10 rounded-xl bg-green-600/10 flex items-center justify-center text-green-400">
+                        <ShieldCheck className="w-5 h-5" />
+                      </div>
+                      Solicitar Verificación
                     </Link>
-                    <Link href="/profile" className="flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all font-medium">
-                      <User className="w-5 h-5 text-blue-400" /> Mi perfil
+
+                    <Link href="/profile" className="flex items-center gap-4 px-4 py-4 rounded-[1.5rem] text-white/50 hover:bg-white/5 hover:text-white transition-all font-bold">
+                      <div className="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center text-blue-400">
+                        <User className="w-5 h-5" />
+                      </div>
+                      Mi perfil
                     </Link>
                   </div>
                 </div>
               )}
 
-              {/* Action Buttons */}
-              <div className="pt-4 border-t border-white/5">
-                {!isHydrated ? null : isAuthenticated ? (
-                  <Button
-                    variant="ghost"
-                    onClick={handleLogout}
-                    className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-400/10 px-3 h-12 rounded-xl transition-all"
+              {/* Login/Register for unauthenticated */}
+              {!isAuthenticated && (
+                <div className="grid gap-3 pt-4">
+                  <Link
+                    href="/login"
+                    className={cn(buttonVariants({ variant: "outline" }), "w-full border-white/10 h-14 rounded-2xl bg-white/5 font-black text-xs uppercase tracking-widest")}
                   >
-                    <LogOut className="w-5 h-5 mr-3" /> Cerrar sesión
-                  </Button>
-                ) : (
-                  <div className="space-y-3 px-2">
-                    <Link
-                      href="/login"
-                      className={cn(buttonVariants({ variant: "outline" }), "w-full border-white/10 h-12 rounded-xl bg-white/5")}
-                    >
-                      Iniciar sesión
-                    </Link>
-                    <Link
-                      href="/register"
-                      className={cn(buttonVariants(), "w-full btn-gradient border-0 h-12 shadow-lg shadow-violet-500/20 rounded-xl")}
-                    >
-                      Registrarse
-                    </Link>
-                  </div>
-                )}
-              </div>
+                    Iniciar sesión
+                  </Link>
+                  <Link
+                    href="/register"
+                    className={cn(buttonVariants(), "w-full bg-gradient-to-r from-violet-600 to-pink-600 border-0 h-14 shadow-lg shadow-violet-500/20 rounded-2xl font-black text-xs uppercase tracking-widest")}
+                  >
+                    Registrarse
+                  </Link>
+                </div>
+              )}
             </div>
 
-            {/* User Info (Bottom Sticker) */}
+            {/* User Info & Logout (Bottom Section) */}
             {isAuthenticated && user && (
-              <div className="p-6 bg-white/5 border-t border-white/5 flex items-center gap-3">
-                <UserAvatar 
-                  src={user.avatarUrl}
-                  name={user.name}
-                  size="md"
-                />
-                <div className="overflow-hidden">
-                  <p className="text-sm font-semibold text-white truncate">{user.name}</p>
-                  <p className="text-xs text-muted-foreground">Usuario verificado</p>
+              <div className="p-6 bg-white/[0.02] border-t border-white/5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <UserAvatar 
+                      src={user.avatarUrl}
+                      name={user.name}
+                      size="md"
+                    />
+                    <div className="overflow-hidden">
+                      <p className="text-sm font-black text-white truncate leading-none mb-1">{user.name.toUpperCase()}</p>
+                      <p className="text-[10px] font-bold text-green-400/70 uppercase tracking-widest flex items-center gap-1">
+                        <ShieldCheck className="w-3 h-3" /> Verificado
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleLogout}
+                    className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-400 hover:bg-red-500/20"
+                  >
+                    <LogOut className="w-5 h-5" />
+                  </Button>
                 </div>
               </div>
             )}
