@@ -258,7 +258,7 @@ export function Navbar() {
                   <div className="flex items-center justify-between bg-white/[0.03] border border-white/5 p-5 rounded-[2rem]">
                     <div className="space-y-0.5">
                       <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Tu billetera</p>
-                      <p className="text-lg font-black text-white">Saldo Actual</p>
+                      <p className="text-lg font-black text-white">Saldo actual</p>
                     </div>
                     <WalletWidget />
                   </div>
@@ -277,7 +277,7 @@ export function Navbar() {
                       <div className="w-10 h-10 rounded-xl bg-pink-600/20 flex items-center justify-center text-pink-400 shadow-inner">
                         <LayoutDashboard className="w-5 h-5" />
                       </div>
-                      ¡TRANSMITIR EN VIVO!
+                      ¡Transmitir en vivo!
                     </Link>
 
                     <Link href="/talent/edit" className="flex items-center gap-4 px-4 py-4 rounded-[1.5rem] text-white/50 hover:bg-white/5 hover:text-white transition-all font-bold">
@@ -334,7 +334,7 @@ export function Navbar() {
                       size="md"
                     />
                     <div className="overflow-hidden">
-                      <p className="text-sm font-black text-white truncate leading-none mb-1">{user.name.toUpperCase()}</p>
+                      <p className="text-sm font-black text-white truncate leading-none mb-1">{user.name}</p>
                       <p className="text-[10px] font-bold text-green-400/70 uppercase tracking-widest flex items-center gap-1">
                         <ShieldCheck className="w-3 h-3" /> Verificado
                       </p>

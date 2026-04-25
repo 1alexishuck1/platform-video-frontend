@@ -61,9 +61,11 @@ export default function IndexPage() {
 
   return (
     <div className="min-h-screen bg-[#030305] relative overflow-hidden">
-      {/* Mesh Gradients de fondo para profundidad */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-1/4 right-0 w-[400px] h-[400px] bg-pink-600/10 rounded-full blur-[100px] pointer-events-none" />
+      {/* Mesh Gradients de fondo para profundidad - WOW Factor */}
+      <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none animate-pulse" />
+      <div className="absolute top-[20%] right-[-5%] w-[500px] h-[500px] bg-pink-600/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-[40%] left-[40%] w-[300px] h-[300px] bg-violet-500/5 rounded-full blur-[80px] pointer-events-none animate-bounce duration-[10000ms]" />
       
       <Navbar />
 
@@ -86,29 +88,41 @@ export default function IndexPage() {
             </div>
 
             {/* Right: Primary CTAs */}
-            <div className="w-full lg:w-[400px] flex flex-col gap-4">
-              <Link href="/talent/dashboard" className="group relative overflow-hidden bg-gradient-to-r from-pink-600 to-red-600 p-6 sm:p-8 rounded-[2.5rem] border border-white/10 hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-pink-600/20">
+            <div className="w-full lg:w-[400px] flex flex-col gap-5">
+              <Link href="/talent/dashboard" className="group relative overflow-hidden bg-gradient-to-br from-pink-500 via-rose-600 to-red-600 p-8 rounded-[3rem] border border-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-500 shadow-2xl shadow-pink-500/20">
+                {/* Background Glow Effect */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-3xl group-hover:bg-white/30 transition-colors" />
+                
                 <div className="relative z-10 flex flex-col items-start gap-1">
-                  <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-white/60">¿Sos talento?</span>
-                  <span className="text-2xl sm:text-3xl font-black text-white italic">EMPEZAR MI VIVO</span>
-                  <div className="mt-4 flex items-center gap-2 text-white/80 font-bold text-sm">
-                    Ganar créditos <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  <span className="text-xs font-black uppercase tracking-[0.2em] text-white/70">¿Sos talento?</span>
+                  <span className="text-4xl font-black text-white italic tracking-tighter">Empezar mi vivo</span>
+                  <p className="mt-2 text-white/60 text-sm font-medium">Transmití ahora y conectá con tus fans.</p>
+                  
+                  <div className="mt-6 flex items-center gap-3 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 group-hover:bg-white/20 transition-all">
+                    <span className="text-white font-bold text-sm">Ganar créditos</span>
+                    <ArrowUpRight className="w-4 h-4 text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </div>
                 </div>
-                <Video className="absolute -right-4 -bottom-4 w-32 h-32 text-white/10 rotate-12 group-hover:scale-110 transition-transform duration-700" />
+
+                <div className="absolute -right-6 -bottom-6 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-700">
+                  <Video className="w-48 h-48 text-white rotate-12" />
+                </div>
               </Link>
 
-              <div className="flex gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 gap-4">
                  <button onClick={() => {
                    const el = document.getElementById('live-section');
                    el?.scrollIntoView({ behavior: 'smooth' });
-                 }} className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 p-4 sm:p-5 rounded-[2rem] flex flex-col items-start gap-1 transition-all hover:border-white/20">
-                    <span className="text-[9px] sm:text-[10px] font-black text-white/40 uppercase tracking-widest">Descubrir</span>
-                    <span className="text-sm sm:text-lg font-black text-white">MIRAR VIVOS</span>
+                 }} className="group relative bg-white/5 hover:bg-white/[0.08] border border-white/10 p-6 rounded-[2.5rem] flex flex-col items-start gap-2 transition-all hover:border-white/30 overflow-hidden">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-violet-500/5 rounded-full blur-2xl group-hover:bg-violet-500/10 transition-colors" />
+                    <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.15em]">Descubrir</span>
+                    <span className="text-lg font-black text-white italic">Mirar vivos</span>
                  </button>
-                 <Link href="/dashboard/verification" className="flex-1 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/20 p-4 sm:p-5 rounded-[2rem] flex flex-col items-start gap-1 transition-all">
-                    <span className="text-[9px] sm:text-[10px] font-black text-violet-400 uppercase tracking-widest">Afiliarse</span>
-                    <span className="text-sm sm:text-lg font-black text-violet-400">SER TALENTO</span>
+                 
+                 <Link href="/dashboard/verification" className="group relative bg-violet-600/10 hover:bg-violet-600/20 border border-violet-500/20 p-6 rounded-[2.5rem] flex flex-col items-start gap-2 transition-all hover:border-violet-500/40 overflow-hidden">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-violet-500/10 rounded-full blur-2xl group-hover:bg-violet-500/20 transition-colors" />
+                    <span className="text-[10px] font-black text-violet-400/60 uppercase tracking-[0.15em]">Afiliarse</span>
+                    <span className="text-lg font-black text-violet-400 italic">Ser talento</span>
                  </Link>
               </div>
             </div>
@@ -122,7 +136,7 @@ export default function IndexPage() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`whitespace-nowrap px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all border ${activeCategory === cat
+                className={`whitespace-nowrap px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-[0.1em] transition-all border ${activeCategory === cat
                   ? "bg-white text-black border-white shadow-xl shadow-white/10"
                   : "bg-white/5 border-white/5 hover:border-white/20 text-white/40 hover:text-white"
                   }`}
@@ -160,7 +174,7 @@ export default function IndexPage() {
                 </div>
                 <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase">En vivo ahora</h2>
                 <div className="bg-white/5 text-white/40 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/5">
-                  {liveNow.length} ACTIVOS
+                  {liveNow.length} activos
                 </div>
               </div>
 
@@ -170,13 +184,13 @@ export default function IndexPage() {
                     <Video className="w-10 h-10" />
                   </div>
                   <div className="space-y-2">
-                    <p className="text-2xl font-black text-white italic">NADIE TRANSMITIENDO</p>
+                    <p className="text-2xl font-black text-white italic">Nadie transmitiendo</p>
                     <p className="text-white/30 text-sm max-w-sm mx-auto">
                       Parece que hoy el escenario está vacío. ¡Aprovechá y empezá tu vivo para ser el primero!
                     </p>
                   </div>
                   <Link href="/talent/dashboard" className="px-8 py-4 rounded-2xl bg-white text-black text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all">
-                    INICIAR TRANSMISIÓN
+                    Iniciar transmisión
                   </Link>
                 </div>
               ) : (
